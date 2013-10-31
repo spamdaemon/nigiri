@@ -1121,11 +1121,11 @@ var MyKeySet = (function(MyFactory, MyKeyRange) {
 
         if (!verified) {
             if (keys.length === 0) {
-                throw new DataError("Keyset is empty");
+                throw new Error("Keyset is empty");
             }
             for (var i = 1; i < keys.length; ++i) {
                 if (compareKeys(keys[i - 1], keys[i]) >= 0) {
-                    throw new DataError("Keyset is not sorted");
+                    throw new Error("Keyset is not sorted");
                 }
             }
         }
