@@ -19,8 +19,10 @@ describe("objectStoreQuery", function() {
             indexed0 : "a0",
             indexed1 : "b1",
             indexed2 : "a2",
-            unindexed0 : "u1"
-
+            unindexed0 : "u1",
+            $group : {
+                $indexed : [ 'a' ]
+            }
         } ],
         index : {
             "indexed0" : {
@@ -35,6 +37,10 @@ describe("objectStoreQuery", function() {
                 unique : false,
                 multiEntry : true
             },
+            "$group.$indexed" : {
+                unique : false,
+                multiEntry : true
+            }
         }
     });
 
@@ -70,9 +76,35 @@ describe("objectStoreQuery", function() {
         };
     });
 
+    async.it("should find an item with the nested path", function(done) {
+        var query = {
+            "$group.$indexed" : "a",
+        };
+
+        var theQuery = new Nigiri.Query(query);
+
+        var theStore = setup.db.transaction([ "store" ]).objectStore("store");
+        var req = theStore.openCursor(theQuery);
+        var i = 0;
+        req.onsuccess = function(e) {
+            if (!e.currentTarget.result) {
+                expect(i).toBe(1);
+                done();
+                return;
+            }
+            expect(e.currentTarget.result.primaryKey).toBe(1);
+            ++i;
+            e.currentTarget.result["continue"]();
+        };
+        req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    });
+
     async.it("should find an unindexed", function(done) {
         var query = {
-             unindexed0 : new Nigiri.KeySet([ "u0", "u1" ])
+            unindexed0 : new Nigiri.KeySet([ "u0", "u1" ])
         };
 
         var theQuery = new Nigiri.Query(query);
