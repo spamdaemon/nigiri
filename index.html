@@ -1,0 +1,270 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Nigiri by spamdaemon</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/spamdaemon/nigiri">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/spamdaemon/nigiri/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/spamdaemon/nigiri/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Nigiri</h1>
+          <p>A simple wrapper for IndexedDB.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/spamdaemon">spamdaemon</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a name="nigiri" class="anchor" href="#nigiri"><span class="octicon octicon-link"></span></a>Nigiri</h1>
+
+<p>This library wraps an IndexedDB datastore in order to provide additional capabilities.
+Nirigi closely follows the design of the <a href="http://www.w3.org/TR/IndexedDB/">IndexedDB API</a> through 
+new functions for ObjectStore and Indexes and reinterpreting arguments for existing functions. </p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<p>Nigiri provides the ability to</p>
+
+<ul>
+<li>execute complex queries that automatically use available indexes</li>
+<li>define a cursor with a set of keys in addition to key ranges</li>
+<li>limit the size of a result set</li>
+<li>skip over the initial items in a result set</li>
+<li>filter a result set</li>
+<li>apply batch updates to the database</li>
+<li>use complex queries to delete, update, and count items in the database</li>
+<li>collect all values, primary keys, or keys that are enumerated by a query</li>
+</ul><h2>
+<a name="non-features" class="anchor" href="#non-features"><span class="octicon octicon-link"></span></a>Non-Features</h2>
+
+<p>Notably absent from Nigiri are promises at this point. There are several methods of the IndexedDB API that don't lend 
+themselves very easily to using promises.</p>
+
+<h2>
+<a name="todo" class="anchor" href="#todo"><span class="octicon octicon-link"></span></a>TODO</h2>
+
+<p>This is the initial version of Nigiri and it is likely to have bugs:</p>
+
+<ul>
+<li>there is no build script other than a simple Unix bash script.</li>
+<li>the documentation is currently lacking</li>
+<li>the event interface has not been tested</li>
+<li>the code organization is still very rough and draft-like </li>
+<li>only tested on Chrome and Firefox so far</li>
+<li>error handling for batch operations are not that well defined</li>
+</ul><h2>
+<a name="unit-testing" class="anchor" href="#unit-testing"><span class="octicon octicon-link"></span></a>Unit Testing</h2>
+
+<p>Unit testing is supported by <a href="http://pivotal.github.io/jasmine/">Jasmine</a>
+and <a href="http://karma-runner.github.io/0.10/index.html">Karma</a>.</p>
+
+<h2>
+<a name="contribute" class="anchor" href="#contribute"><span class="octicon octicon-link"></span></a>Contribute</h2>
+
+<p>If you find this project useful and want to report a problem, please provide a unit test case.</p>
+
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<h3>
+<a name="keyset" class="anchor" href="#keyset"><span class="octicon octicon-link"></span></a>KeySet</h3>
+
+<p>Use a KeySet to find specific items in index or store. The KeySet can be used in the same way that an IDBKeyRange 
+can be used:
+<code>X.openCursor(new Nigiri.KeySet([ key1, key2, key3, ... ]))</code></p>
+
+<p><code>X.openKeyCursor(new Nigiri.KeySet([ key1, key2, key3, ... ]))</code></p>
+
+<p>The keys must be specified in sorted order.</p>
+
+<h3>
+<a name="query" class="anchor" href="#query"><span class="octicon octicon-link"></span></a>Query</h3>
+
+<p>Use a Query to perform more complex object store queries involving multiple fields, which are identified by their keypath. </p>
+
+<pre><code>  BOOKS.openCursor(new Nigiri.Query({
+    author : new Nigiri.KeySet(["Hemingway", "Poe" ]),
+    year   : Nigiri.KeyRange.bound(1900, 1950),
+  }), options)
+</code></pre>
+
+<p>If there are fields that are indexed, then the query will use the appropriate indexes. For fields that are not indexed,
+ a filter is automatically created. Again, a query can be used with generic options.
+Queries cannot be used with indexes. Use a KeyRange or KeySet instead.</p>
+
+<h3>
+<a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a>Options</h3>
+
+<p>Cursor functions that normally take a direction parameter can now take an Options parameter instead.</p>
+
+<p>Currently options are</p>
+
+<ul>
+<li>
+<code>direction</code>, which can be used in the same way that the standard <code>direction</code> parameter would be used.</li>
+<li>
+<code>offset</code>, which can be used to skip an initial number of items that the cursor would normally return.</li>
+<li>
+<code>limit</code>, which can be used to limit the number of items returned by the cursor.</li>
+<li>
+<code>filter</code>, which is a boolean <code>function(cursor)</code> that can be used to ignore items that a cursor would normally return</li>
+<li>
+<code>withValues</code>, is used to indicate that the cursor needs to retrieve objects from the store instead of just their keys</li>
+</ul><p>The following cursor enumerates only the two even items 2,4 in reverse order: </p>
+
+<pre><code>  INTEGERS.openCursor(new IDBKeyRange(0,100),new Nigiri.Options({ 
+    offset : 3,
+    limit : 2,
+    direction : "prev",
+    filter : function(cursor) {
+      return (cursor.key % 2) === 0;
+    }
+  }))
+</code></pre>
+
+<h3>
+<a name="counting-getting-and-deleting" class="anchor" href="#counting-getting-and-deleting"><span class="octicon octicon-link"></span></a>Counting, Getting, and Deleting</h3>
+
+<p>KeySet and and Query can be used together with the count and delete functions.</p>
+
+<pre><code>    BOOKS.count(new Nigiri.Query({
+        year : Nigiri.KeyRange.upperBound(2011)
+    });
+</code></pre>
+
+<p>might be used to count all books before the year 2012.</p>
+
+<p>or </p>
+
+<pre><code>    BOOKS["delete"](new Nigiri.Query({
+        year : Nigiri.KeyRange.upperBound(2010)
+    }));
+</code></pre>
+
+<p>can be used to delete books older than 2011.</p>
+
+<p>Analogous to delete and count, it is possible to use queries with the <code>get</code> and <code>getKey</code> functions
+on an index or object store.</p>
+
+<h3>
+<a name="updating" class="anchor" href="#updating"><span class="octicon octicon-link"></span></a>Updating</h3>
+
+<p>Items in the database can easily be updated or deleted with an update function. For example,
+use this to delete very old unread articles, or mark somewhat old articles as read:</p>
+
+<pre><code>  BOOKS.update(function(book) {
+            if (book.year &lt; 2009) {
+                return undefined; // return undefined to delete the book
+            }
+            if ((now - book.year) &lt; 1) {
+                return null; // don't update this item
+            }
+
+            book.unread = false;
+            return book; // return the item (or a new item) to update the entry in the database
+        }, new Nigiri.Query({
+            unread : true
+        }), new Nigiri.Options())
+</code></pre>
+
+<h3>
+<a name="batch-update-operations" class="anchor" href="#batch-update-operations"><span class="octicon octicon-link"></span></a>Batch Update operations</h3>
+
+<p>A few methods have been added to retrieve multiple records or update or add multiple records:</p>
+
+<ul>
+<li>addAll can be used to add multiple new items to the object store</li>
+<li>putAll can be used to add or overwrite existing items in the object store.</li>
+</ul><p>Example usage of addAll:</p>
+
+<pre><code>    BOOKS.addAll([ {
+            key : "isbn:978-0596517748",
+            title : "JavaScript : The Good Parts",
+            author : "Crockford",
+            year : 2008,
+            unread : true
+        }, {
+            key : "B00CA5USBY8",
+            title : "Javascript for Beginners",
+            author : "Lassoff",
+            year : 2013,
+            unread : true
+        }, {
+            key : "isbn:978-1449399023",
+            title : "JavaScript &amp; jQuery: The Missing Manual",
+            author : "McFarland",
+            year : 2011,
+            unread : true
+        } ])
+</code></pre>
+
+<p>Basically, addAll and putAll work like their single value counterparts.</p>
+
+<h3>
+<a name="batch-retrieval" class="anchor" href="#batch-retrieval"><span class="octicon octicon-link"></span></a>Batch Retrieval</h3>
+
+<p>Batch retrieval methods simplify the use of the database since it avoids use of cursors:</p>
+
+<ul>
+<li>getAll can be used to get all objects that match a query on an index or a store</li>
+<li>getAllPrimaryKeys can be used to a sorted array of the primary keys that are selected by a query on an index or a store</li>
+<li>getAllKeys can be used to a sorted array of the keys that are selected by a query  on an index or a store</li>
+</ul><p>The result of the operations are arrays of either values, primary keys, or keys. They are used like this:</p>
+
+<pre><code>     BOOKS.getAll(new Nigiri.Query({
+            year : IDBKeyRange.upperBound(2012)
+        }), new Nigiri.Options({
+            direction : "prev"
+        }))
+</code></pre>
+
+<p>All batch operations currently respond with a success event and report this structure as a result:</p>
+
+<pre><code>  {
+     successes : &lt;number of successful operations&gt;,
+     errors : &lt;number of errors&gt;
+  }
+</code></pre>
+
+<p>If an onerror handler is set, then the all batch operations may invoke the handler multiple times, if the handler
+calls <code>preventDefault</code>.</p>
+
+<h2>
+<a name="performance" class="anchor" href="#performance"><span class="octicon octicon-link"></span></a>Performance</h2>
+
+<p>Generally, the Nigiri.Queries should be performing reasonably well, unless non-indexed fields are queried. If non-indexed fields are queried, 
+then the object has to be retrieved from storage so that the filter function can be evaluated. When using filters or keysets, the 
+cursor's advance function cannot skip over multiple items at a time, so use of <code>cursor.advance()</code> with values greater than one should be
+avoided. This applies also to initial offsets greather than 1.</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
