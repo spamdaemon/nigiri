@@ -181,4 +181,33 @@ describe("objectStoreQuery", function() {
         };
     });
 
+    async.it("should not fail this unit test", function(done) {
+
+        var query = {
+            "key" : new Nigiri.KeySet([ 2 ]),
+        };
+
+        var options = {};
+
+        var theQuery = new Nigiri.Query(query);
+
+        var theStore = setup.db.transaction([ "store" ]).objectStore("store");
+        var req = theStore.openCursor(theQuery, options);
+        var res = [];
+        req.onsuccess = function(e) {
+            if (e.currentTarget.result) {
+                res.push(req.result.primaryKey);
+                req.result.advance(1);
+            } else {
+                expect(res.length).toBe(1);
+                expect(res[0]).toBe(2);
+                done();
+            }
+        };
+        req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    });
+
 });

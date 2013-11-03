@@ -1161,7 +1161,7 @@ var MyEnvironment = function(idbEnvironment, indexDB) {
 
 // attributes
 addConstProperty(MyEnvironment.prototype, "indexedDB");
-var MyKeySet = (function(MyFactory, MyKeyRange) {
+var MyKeySet = (function(MyFactory, MyKeyRange, findByBinarySearch) {
     var compareKeys = MyFactory.cmp;
 
     var MyKeySet = function(keys, verified) {
@@ -1182,14 +1182,7 @@ var MyKeySet = (function(MyFactory, MyKeyRange) {
     };
 
     MyKeySet.prototype.indexOf = function(key) {
-        // simple function for now
-        var i, n;
-        for (i = 0, n = this.__keys.length; i < n; ++i) {
-            if (compareKeys(key, this.__keys[i]) <= 0) {
-                return i;
-            }
-        }
-        return -1;
+        return findByBinarySearch(this.__keys,compareKeys,0,key);
     };
 
     MyKeySet.prototype.contains = function(v) {
@@ -1200,7 +1193,7 @@ var MyKeySet = (function(MyFactory, MyKeyRange) {
     addConstProperty(MyKeySet.prototype, "range");
 
     return MyKeySet;
-})(FACTORY, MyKeyRange);
+})(FACTORY, MyKeyRange, findByBinarySearch);
 var MyKeyPath = (function(isArray) {
 
     var applyKeyPath = function(path, object) {
