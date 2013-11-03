@@ -1,27 +1,34 @@
 var MyQuery = (function(copy, extend, TheRequest, Factory, Options, KeyPath, KeySet, createKeyRange) {
     var compareKeys = Factory.cmp;
 
+    var createIndex = function(obj, name) {
+        var tmp = {
+            name : name,
+            conditions : null,
+            keyValue : null,
+        };
+        tmp.index = obj;
+        tmp.keyPath = new KeyPath(obj.keyPath);
+        tmp.nPaths = tmp.keyPath.paths.length;
+
+        if (tmp.nPaths > 1) {
+            console.log("Warning : multi-indexes not really supported at this time");
+            return null;
+        }
+        return tmp;
+    };
+
     // collect the indexes for the store and build a structure that we can more easily query
     var createIndexes = function(store) {
         var res = [];
-        var i, n, names = store.indexNames, tmp;
+        var i, n, name, names = store.indexNames, tmp;
 
         for (i = 0, n = names.length; i < n; ++i) {
-            tmp = {
-                name : names.item(i),
-                conditions : null,
-                keyValue : null
-            };
-            tmp.index = store.index(tmp.name);
-            tmp.keyPath = new KeyPath(tmp.index.keyPath);
-            tmp.nPaths = tmp.keyPath.paths.length;
-
-            if (tmp.nPaths > 1) {
-                console.log("Warning : multi-indexes not really supported at this time");
-                continue;
+            name = names.item(i);
+            tmp = createIndex(store.index(name), name);
+            if (tmp !== null) {
+                res.push(tmp);
             }
-
-            res.push(tmp);
         }
 
         res.sort(function(a, b) {
@@ -107,6 +114,18 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, Options, KeyPath, Key
             }
         }
         return unassigned;
+    };
+
+    var assignStoreQuery = function(store, allConditions) {
+        if (store.keyPath === null) {
+            return null;
+        }
+        var range = allConditions[store.keyPath];
+        if (range) {
+            delete allConditions[store.keyPath];
+            return range;
+        }
+        return null;
     };
 
     var intersectArrays = function(a, b) {
@@ -252,11 +271,11 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, Options, KeyPath, Key
 
     TheQuery.prototype.__openCursor = function(store, options) {
         var indexes = createIndexes(store);
+        var xrange = assignStoreQuery(store, this.__conditions);
         var unassigned = assignConditions(indexes, this.__conditions);
         var filter = createFilter(unassigned, this.__filter);
         var primaryKeys = startIndexQueries(store, indexes, this.__includedPrimaryKeys, this.__excludedPrimaryKeys);
         var request = null;
-        var range = null;
 
         if (filter) {
             if (options.filter) {
@@ -266,26 +285,35 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, Options, KeyPath, Key
                 };
             }
             // create new options
-            options = new MyOptions(extend({}, options, {
+            options = new Options(extend({}, options, {
                 filter : filter
             }));
         }
 
         if (primaryKeys === null) {
-            request = openCursor(store, this, range, options);
+            request = openCursor(store, this, xrange, options);
         } else {
+
             request = new TheRequest(null, store, store.transaction);
             request.__setOwnerOf(primaryKeys);
 
             primaryKeys.onsuccess = function(e) {
                 var allKeys = primaryKeys.result;
+                var range = xrange;
                 if (allKeys.length === 0) {
                     request.__readyState = "done";
                     request.__notifyOnSuccess(null);
-                } else {
-                    var range = new KeySet(allKeys);
-                    request.__setImpl(openCursor(store, this, range, options));
+                    return;
                 }
+                if (range === null) {
+                    range = new KeySet(allKeys);
+                    allKeys = null;
+                } else {
+                    options = new Options(extend({}, options, {
+                        includedPrimaryKeys : allKeys
+                    }));
+                }
+                request.__setImpl(openCursor(store, this, range, options));
             };
             primaryKeys.onError = function(e) {
                 request.__notifyOnError(primaryKeys.request, e);
