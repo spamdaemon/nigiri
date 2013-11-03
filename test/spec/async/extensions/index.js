@@ -159,4 +159,31 @@ describe("Index", function() {
         };
     });
 
+    async.it("should consider excluded/included keys and primary keys", function(done) {
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
+        var options = {
+            includedKeys : [ "c", "d", "e", "f" ],
+            excludedKeys : [ "e" ],
+            includedPrimaryKeys : [ 5, 6 ],
+            excludedPrimaryKeys : [ 4, 5 ]
+        };
+        var req = theIndex.openCursor(null, options);
+        var results = [];
+
+        req.onsuccess = function(e) {
+            if (!req.result) {
+                expect(results.length).toBe(1);
+                expect(results[0]).toBe(6);
+                done();
+            } else {
+                results.push(req.result.primaryKey);
+                req.result.advance(1);
+            }
+        };
+        req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    });
+
 });

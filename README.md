@@ -83,12 +83,16 @@ Queries cannot be used with indexes. Use a KeyRange or KeySet instead.
 
 Cursor functions that normally take a direction parameter can now take an Options parameter instead.
 
-Currently options are
+Currently, the supported options are
 * `direction`, which can be used in the same way that the standard `direction` parameter would be used.
 * `offset`, which can be used to skip an initial number of items that the cursor would normally return.
 * `limit`, which can be used to limit the number of items returned by the cursor.
 * `filter`, which is a boolean `function(cursor)` that can be used to ignore items that a cursor would normally return
 * `withValues`, is used to indicate that the cursor needs to retrieve objects from the store instead of just their keys
+* `includedKeys`, is used to limit the result set  or cursor to a list of included keys (must be a sorted array)
+* `includedPrimaryKeys`, is used to limit the result set  or cursor to a list of primary keys  (must be a sorted array)
+* `excludedKeys`, is used to exclude certain keys from a result set or cursor  (must be a sorted array)
+* `excludedPrimaryKeys`,  is used to exclude certain primary keys from a result set or cursor  (must be a sorted array)
 
 The following cursor enumerates only the two even items 2,4 in reverse order: 
 ```

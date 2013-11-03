@@ -149,4 +149,36 @@ describe("objectStoreQuery", function() {
         };
     });
 
+    async.it("should use included and excluded primary keys", function(done) {
+
+        var query = {
+            indexed0 : "a0",
+        };
+
+        var options = {
+            excludedPrimaryKeys : [ 0 ],
+            includedPrimaryKeys : [ 1 ]
+        };
+
+        var theQuery = query;
+
+        var theStore = setup.db.transaction([ "store" ]).objectStore("store");
+        var req = theStore.openCursor(theQuery, options);
+        var res = [];
+        req.onsuccess = function(e) {
+            if (e.currentTarget.result) {
+                res.push(req.result.primaryKey);
+                req.result.advance(1);
+            } else {
+                expect(res[0]).toBe(1);
+                expect(res.length).toBe(1);
+                done();
+            }
+        };
+        req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    });
+
 });

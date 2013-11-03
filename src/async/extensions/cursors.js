@@ -50,14 +50,16 @@ var parseKeyArgs = function(array, withQuerySupport, withValues) {
         if (array.length === 2) {
             if (typeof array[1] === "string") {
                 options.direction = array[1];
-            } else if (array[1] instanceof MyOptions) {
+            } else {
+                if (!(array[1] instanceof MyOptions)) {
+                    array[1] = new MyOptions(array[1]);
+                }
                 options.withValues = array[1].withValues || options.withValues;
                 options = extend({}, array[1].getOptions(), options);
-            } else {
-                options.withValues = array[1].withValues || options.withValues;
-                options = extend({}, array[1], options);
+
+                // options always has a valid direction value!
+                array[1] = options.direction;
             }
-            array[1] = options.direction;
         }
     }
 

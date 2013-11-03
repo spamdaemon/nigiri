@@ -49,8 +49,8 @@ describe("KeySetCursorWithValues", function() {
     async.afterEach(setup.teardown());
 
     async.it("should iterate over a given key (forward)", function(done) {
-        var theIndex = setup.db.transaction([ "store" ]).objectStore("store");
-        var req = theIndex.openCursor(new Nigiri.KeySet([ 2, 4, 6, 12]));
+        var theStore = setup.db.transaction([ "store" ]).objectStore("store");
+        var req = theStore.openCursor(new Nigiri.KeySet([ 2, 4, 6, 12 ]));
         var results = [];
         while (results.length < 11) {
             results.push(false);
@@ -83,8 +83,8 @@ describe("KeySetCursorWithValues", function() {
     });
 
     async.it("should iterate in the reverse order", function(done) {
-        var theIndex = setup.db.transaction([ "store" ]).objectStore("store");
-        var req = theIndex.openCursor(new Nigiri.KeySet([ 2, 4, 6, 12 ]), "prev");
+        var theStore = setup.db.transaction([ "store" ]).objectStore("store");
+        var req = theStore.openCursor(new Nigiri.KeySet([ 2, 4, 6, 12 ]), "prev");
         var results = [];
 
         req.onsuccess = function() {
@@ -92,7 +92,7 @@ describe("KeySetCursorWithValues", function() {
                 expect(results[0]).toEqual(6);
                 expect(results[1]).toEqual(4);
                 expect(results[2]).toEqual(2);
-                expect(results.length === 3);
+                expect(results.length).toBe(3);
                 done();
                 return;
             }
@@ -107,15 +107,15 @@ describe("KeySetCursorWithValues", function() {
     });
 
     async.it("should skip over keys with advance", function(done) {
-        var theIndex = setup.db.transaction([ "store" ]).objectStore("store");
-        var req = theIndex.openCursor(new Nigiri.KeySet([ 4, 5,6, 7 ]));
+        var theStore = setup.db.transaction([ "store" ]).objectStore("store");
+        var req = theStore.openCursor(new Nigiri.KeySet([ 4, 5, 6, 7 ]));
         var results = [];
 
         req.onsuccess = function() {
             if (!req.result) {
                 expect(results[0]).toEqual(4);
                 expect(results[1]).toEqual(7);
-                expect(results.length === 2);
+                expect(results.length).toBe(2);
                 done();
                 return;
             }
@@ -128,5 +128,4 @@ describe("KeySetCursorWithValues", function() {
             done();
         };
     });
-
 });

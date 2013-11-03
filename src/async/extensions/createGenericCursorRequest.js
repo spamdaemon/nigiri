@@ -1,5 +1,32 @@
-var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions) {
-    
+var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions, findByBinarySearch, compare) {
+
+    var isExcludedKey = function(keys, key) {
+        return keys !== null && findByBinarySearch(keys, compare, 0, key) >= 0;
+    };
+
+    var isIncludedKey = function(keys, key) {
+        return keys === null || findByBinarySearch(keys, compare, 0, key) >= 0;
+    };
+
+    var createKeyFilter = function(request, filter) {
+        return function(cursor) {
+            // check that the key and primary keys are not excluded
+            if (isExcludedKey(request.__excludedKeys, cursor.key)) {
+                return false;
+            }
+            if (isExcludedKey(request.__excludedPrimaryKeys, cursor.primaryKey)) {
+                return false;
+            }
+            if (!isIncludedKey(request.__includedKeys, cursor.key)) {
+                return false;
+            }
+            if (!isIncludedKey(request.__includedPrimaryKeys, cursor.primaryKey)) {
+                return false;
+            }
+            return filter(cursor);
+        };
+    };
+
     /**
      * This function creates an iterator. We need to pass the original request, because the event object may point at
      * the wrong request object when chaining requests:
@@ -15,10 +42,10 @@ var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions) {
      * cursor is really the outer cursor; this means, we won't be able to access the state variable.
      */
     var createIterator = function(request, callback) {
-        
+
         return function(e) {
             var state = request.__iterationState;
-            
+
             var cursor = request.result;
             if (!MyRequest.__resultValid(request)) {
                 callback(e);
@@ -28,7 +55,7 @@ var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions) {
             if (!cursor.__impl) {
                 throw new Error("Cursor is not defined");
             }
-            
+
             // if we've reached the end of the iteration then we just bail out
             if (state.__limit === 0) {
                 request.__readyState = "done";
@@ -45,9 +72,10 @@ var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions) {
                 // it is expected that the cursor has finished
                 return;
             }
+
             // the cursor was successfully sync'ed to an element
 
-            if (!state.__filter(cursor)) {
+            if (!request.__filter(cursor)) {
                 cursor.__impl.advance(1);
             } else if (state.__skip > 0) {
                 --state.__skip;
@@ -135,17 +163,24 @@ var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions) {
         this.__cursorWithValues = options.withValues || false;
         this.__sync = options.sync || TRUE_FUNCTION;
 
+        this.__excludedKeys = options.excludedKeys || null;
+        this.__excludedPrimaryKeys = options.excludedPrimaryKeys || null;
+        this.__includedKeys = options.includedKeys || null;
+        this.__includedPrimaryKeys = options.includedPrimaryKeys || null;
+
+        this.__filter = options.filter || TRUE_FUNCTION;
+        if (this.__excludedKeys !== null || this.__excludedPrimaryKeys !== null || this.__includedKeys !== null || this.__includedPrimaryKeys !== null) {
+            this.__filter = createKeyFilter(this, this.__filter);
+        }
+
         this.__iterationState = {
-            // this is a CURSOR filter, i.e. it takes a cursor object
-            __filter : options.filter || TRUE_FUNCTION,
             __skip : options.offset > 0 ? options.offset : 0,
             __limit : options.limit >= 0 ? options.limit : -1,
             __callerState : options.iterationState || {}
         };
 
         // check the iteration state is the default state, in which case we don't need to do any sort of filtering.
-        if (this.__sync === TRUE_FUNCTION && this.__iterationState.__skip === 0 && this.__iterationState.__limit < 0 &&
-                this.__iterationState.__filter === TRUE_FUNCTION) {
+        if (this.__sync === TRUE_FUNCTION && this.__iterationState.__skip === 0 && this.__iterationState.__limit < 0 && this.__filter === TRUE_FUNCTION) {
             this.__iterationState = null;
         }
 
@@ -178,4 +213,4 @@ var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions) {
         var req = new TheRequest(idbRequest, source, transaction, new MyOptions(options));
         return req;
     };
-})(MyRequest, MyCursor, MyOptions);
+})(MyRequest, MyCursor, MyOptions, findByBinarySearch, FACTORY.cmp);

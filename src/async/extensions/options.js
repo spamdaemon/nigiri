@@ -1,7 +1,12 @@
 var MyOptions = (function(copy, extend) {
 
+    var arrayOrNull = function(array)
+    {
+        return array===null || array.length===0 ? null : array;
+    };
+    
     var TheOptions = function(opts) {
-
+        var i, n;
         extend(this, copy(opts || {}));
 
         this.isDefault = true;
@@ -30,6 +35,35 @@ var MyOptions = (function(copy, extend) {
         if (!this.hasOwnProperty("withValues")) {
             this.withValues = true;
         }
+
+        if (!this.hasOwnProperty("excludedPrimaryKeys")) {
+            this.excludedPrimaryKeys = null;
+        }
+        this.excludedPrimaryKeys = arrayOrNull(this.excludedPrimaryKeys);
+        
+        this.isDefault = this.isDefault && this.excludedPrimaryKeys===null;
+        this.isStandard = this.isStandard && this.excludedPrimaryKeys===null;
+
+        if (!this.hasOwnProperty("excludedKeys")) {
+            this.excludedKeys = null;
+        }
+        this.excludedKeys = arrayOrNull(this.excludedKeys);
+        this.isDefault = this.isDefault && this.excludedKeys===null;
+        this.isStandard = this.isStandard && this.excludedKeys===null;
+
+        if (!this.hasOwnProperty("includedPrimaryKeys")) {
+            this.includedPrimaryKeys = null;
+        }
+        this.includedPrimaryKeys = arrayOrNull(this.includedPrimaryKeys);
+        this.isDefault = this.isDefault && this.includedPrimaryKeys===null;
+        this.isStandard = this.isStandard && this.includedPrimaryKeys===null;
+
+        if (!this.hasOwnProperty("includedKeys")) {
+            this.includedKeys = null;
+        }
+        this.includedKeys = arrayOrNull(this.includedKeys);
+        this.isDefault = this.isDefault && this.includedKeys===null;
+        this.isStandard = this.isStandard && this.includedKeys===null;
 
         Object.freeze(this);
     };

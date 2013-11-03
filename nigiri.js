@@ -169,6 +169,53 @@ var binarySearch = function(keys, compareKeys, pos, key) {
     }
     return keys.length;
 };
+
+/**
+ * Perform a binary search on array.
+ * 
+ * @param keys
+ *            an sorted array of values to search
+ * @param compareKeys
+ *            a compare keys function
+ * @param pos
+ *            a starting position in the array
+ * @param key
+ *            a key to search for
+ * @return the index at which the key is found or -1 if not found
+ */
+var findByBinarySearch = function(keys, compareKeys, pos, key) {
+    // simple function for now
+    var i = pos, j = keys.length - 1, k, cmp;
+
+    // defensive programming here, should not really ever happen
+    if (pos > j) {
+        console.log("Error " + pos + " already at the end");
+        return -1;
+    }
+
+    while (i < j) {
+        // due to floor, k !== j, but it might be ===i
+        k = Math.floor((i + j) / 2);
+        cmp = compareKeys(key, keys[k]);
+        if (cmp === 0) {
+            return k;
+        }
+        if (cmp < 0) {
+            // need to use k, because we might need to return k
+            j = k;
+        } else {
+            // since key[k] is less k, will never be a valid answer
+            // so we can safely increase by 1
+            i = k + 1;
+        }
+    }
+
+    // assert i===j
+    if (compareKeys(key, keys[i]) === 0) {
+        return i;
+    }
+    return -1;
+};
 /**
  * This object is used for objects that wrap a native object.
  */
@@ -1229,8 +1276,13 @@ var MyKeyPath = (function(isArray) {
 })(is_array);
 var MyOptions = (function(copy, extend) {
 
+    var arrayOrNull = function(array)
+    {
+        return array===null || array.length===0 ? null : array;
+    };
+    
     var TheOptions = function(opts) {
-
+        var i, n;
         extend(this, copy(opts || {}));
 
         this.isDefault = true;
@@ -1259,6 +1311,35 @@ var MyOptions = (function(copy, extend) {
         if (!this.hasOwnProperty("withValues")) {
             this.withValues = true;
         }
+
+        if (!this.hasOwnProperty("excludedPrimaryKeys")) {
+            this.excludedPrimaryKeys = null;
+        }
+        this.excludedPrimaryKeys = arrayOrNull(this.excludedPrimaryKeys);
+        
+        this.isDefault = this.isDefault && this.excludedPrimaryKeys===null;
+        this.isStandard = this.isStandard && this.excludedPrimaryKeys===null;
+
+        if (!this.hasOwnProperty("excludedKeys")) {
+            this.excludedKeys = null;
+        }
+        this.excludedKeys = arrayOrNull(this.excludedKeys);
+        this.isDefault = this.isDefault && this.excludedKeys===null;
+        this.isStandard = this.isStandard && this.excludedKeys===null;
+
+        if (!this.hasOwnProperty("includedPrimaryKeys")) {
+            this.includedPrimaryKeys = null;
+        }
+        this.includedPrimaryKeys = arrayOrNull(this.includedPrimaryKeys);
+        this.isDefault = this.isDefault && this.includedPrimaryKeys===null;
+        this.isStandard = this.isStandard && this.includedPrimaryKeys===null;
+
+        if (!this.hasOwnProperty("includedKeys")) {
+            this.includedKeys = null;
+        }
+        this.includedKeys = arrayOrNull(this.includedKeys);
+        this.isDefault = this.isDefault && this.includedKeys===null;
+        this.isStandard = this.isStandard && this.includedKeys===null;
 
         Object.freeze(this);
     };
@@ -1338,8 +1419,35 @@ var createKeyRange = (function(KeyRange, KeySet, Factory, isArray, isFunction) {
         return res;
     };
 
-})(MyKeyRange, MyKeySet, FACTORY, is_array, is_function);var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions) {
-    
+})(MyKeyRange, MyKeySet, FACTORY, is_array, is_function);var createGenericCursorRequest = (function(MyRequest, MyCursor, MyOptions, findByBinarySearch, compare) {
+
+    var isExcludedKey = function(keys, key) {
+        return keys !== null && findByBinarySearch(keys, compare, 0, key) >= 0;
+    };
+
+    var isIncludedKey = function(keys, key) {
+        return keys === null || findByBinarySearch(keys, compare, 0, key) >= 0;
+    };
+
+    var createKeyFilter = function(request, filter) {
+        return function(cursor) {
+            // check that the key and primary keys are not excluded
+            if (isExcludedKey(request.__excludedKeys, cursor.key)) {
+                return false;
+            }
+            if (isExcludedKey(request.__excludedPrimaryKeys, cursor.primaryKey)) {
+                return false;
+            }
+            if (!isIncludedKey(request.__includedKeys, cursor.key)) {
+                return false;
+            }
+            if (!isIncludedKey(request.__includedPrimaryKeys, cursor.primaryKey)) {
+                return false;
+            }
+            return filter(cursor);
+        };
+    };
+
     /**
      * This function creates an iterator. We need to pass the original request, because the event object may point at
      * the wrong request object when chaining requests:
@@ -1355,10 +1463,10 @@ var createKeyRange = (function(KeyRange, KeySet, Factory, isArray, isFunction) {
      * cursor is really the outer cursor; this means, we won't be able to access the state variable.
      */
     var createIterator = function(request, callback) {
-        
+
         return function(e) {
             var state = request.__iterationState;
-            
+
             var cursor = request.result;
             if (!MyRequest.__resultValid(request)) {
                 callback(e);
@@ -1368,7 +1476,7 @@ var createKeyRange = (function(KeyRange, KeySet, Factory, isArray, isFunction) {
             if (!cursor.__impl) {
                 throw new Error("Cursor is not defined");
             }
-            
+
             // if we've reached the end of the iteration then we just bail out
             if (state.__limit === 0) {
                 request.__readyState = "done";
@@ -1385,9 +1493,10 @@ var createKeyRange = (function(KeyRange, KeySet, Factory, isArray, isFunction) {
                 // it is expected that the cursor has finished
                 return;
             }
+
             // the cursor was successfully sync'ed to an element
 
-            if (!state.__filter(cursor)) {
+            if (!request.__filter(cursor)) {
                 cursor.__impl.advance(1);
             } else if (state.__skip > 0) {
                 --state.__skip;
@@ -1475,17 +1584,24 @@ var createKeyRange = (function(KeyRange, KeySet, Factory, isArray, isFunction) {
         this.__cursorWithValues = options.withValues || false;
         this.__sync = options.sync || TRUE_FUNCTION;
 
+        this.__excludedKeys = options.excludedKeys || null;
+        this.__excludedPrimaryKeys = options.excludedPrimaryKeys || null;
+        this.__includedKeys = options.includedKeys || null;
+        this.__includedPrimaryKeys = options.includedPrimaryKeys || null;
+
+        this.__filter = options.filter || TRUE_FUNCTION;
+        if (this.__excludedKeys !== null || this.__excludedPrimaryKeys !== null || this.__includedKeys !== null || this.__includedPrimaryKeys !== null) {
+            this.__filter = createKeyFilter(this, this.__filter);
+        }
+
         this.__iterationState = {
-            // this is a CURSOR filter, i.e. it takes a cursor object
-            __filter : options.filter || TRUE_FUNCTION,
             __skip : options.offset > 0 ? options.offset : 0,
             __limit : options.limit >= 0 ? options.limit : -1,
             __callerState : options.iterationState || {}
         };
 
         // check the iteration state is the default state, in which case we don't need to do any sort of filtering.
-        if (this.__sync === TRUE_FUNCTION && this.__iterationState.__skip === 0 && this.__iterationState.__limit < 0 &&
-                this.__iterationState.__filter === TRUE_FUNCTION) {
+        if (this.__sync === TRUE_FUNCTION && this.__iterationState.__skip === 0 && this.__iterationState.__limit < 0 && this.__filter === TRUE_FUNCTION) {
             this.__iterationState = null;
         }
 
@@ -1518,7 +1634,7 @@ var createKeyRange = (function(KeyRange, KeySet, Factory, isArray, isFunction) {
         var req = new TheRequest(idbRequest, source, transaction, new MyOptions(options));
         return req;
     };
-})(MyRequest, MyCursor, MyOptions);var createKeySetCursorRequest = (function(FACTORY, isFunction, findKeyIndex, createGenericCursorRequest, MyOptions) {
+})(MyRequest, MyCursor, MyOptions, findByBinarySearch, FACTORY.cmp);var createKeySetCursorRequest = (function(FACTORY, isFunction, findKeyIndex, createGenericCursorRequest, MyOptions) {
 
     var prevSort = function(a, b) {
         return FACTORY.cmp(b, a);
@@ -1987,7 +2103,7 @@ var getKeyByCursor = (function(TheRequest) {
     };
 
 })(MyRequest, FACTORY, MyObjectStore, MyIndex);
-var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, createKeyRange) {
+var MyQuery = (function(copy, extend, TheRequest, Factory, Options, KeyPath, KeySet, createKeyRange) {
     var compareKeys = Factory.cmp;
 
     // collect the indexes for the store and build a structure that we can more easily query
@@ -2118,11 +2234,16 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
     };
 
     // start executing requests against the individual indexes
-    var startIndexQueries = function(store, indexes, initialKeys) {
+    var startIndexQueries = function(store, indexes, includedKeys, excludedKeys) {
 
         var nOutstanding = 0;
-        var allKeys = initialKeys === null ? null : initialKeys.keys;
+        var allKeys = includedKeys === null ? null : includedKeys.keys;
         var firstError = false;
+
+        var opts = new Options({
+            includedPrimaryKeys : includedKeys || null,
+            excludedPrimaryKeys : excludedKeys || null
+        });
 
         var request = null;
 
@@ -2166,7 +2287,7 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
                 if (request === null) {
                     request = new TheRequest(null, store, store.transaction);
                 }
-                req = index.index.getAllPrimaryKeys(index.keyValue);
+                req = index.index.getAllPrimaryKeys(index.keyValue, opts);
                 request.__setOwnerOf(req);
                 req.onsuccess = onsuccess(req);
                 req.onerror = onerror(req);
@@ -2226,7 +2347,8 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
             }
         }
         options = options || {};
-        this.__primaryKeys = options.primaryKeys || null;
+        this.__includedPrimaryKeys = options.includedPrimaryKeys || null;
+        this.__excludedPrimaryKeys = options.excludedPrimaryKeys || null;
     };
 
     var openCursor = function(store, query, range, options) {
@@ -2237,7 +2359,7 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
         var indexes = createIndexes(store);
         var unassigned = assignConditions(indexes, this.__conditions);
         var filter = createFilter(unassigned, this.__filter);
-        var primaryKeys = startIndexQueries(store, indexes, this.__primaryKeys);
+        var primaryKeys = startIndexQueries(store, indexes, this.__includedPrimaryKeys, this.__excludedPrimaryKeys);
         var request = null;
         var range = null;
 
@@ -2280,7 +2402,7 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
 
     return TheQuery;
 
-})(shallow_copy, extend, MyRequest, FACTORY, MyKeyPath, MyKeySet, createKeyRange);
+})(shallow_copy, extend, MyRequest, FACTORY, MyOptions, MyKeyPath, MyKeySet, createKeyRange);
 var parseKeyArgs = function(array, withQuerySupport, withValues) {
 
     var options = {
@@ -2333,14 +2455,16 @@ var parseKeyArgs = function(array, withQuerySupport, withValues) {
         if (array.length === 2) {
             if (typeof array[1] === "string") {
                 options.direction = array[1];
-            } else if (array[1] instanceof MyOptions) {
+            } else {
+                if (!(array[1] instanceof MyOptions)) {
+                    array[1] = new MyOptions(array[1]);
+                }
                 options.withValues = array[1].withValues || options.withValues;
                 options = extend({}, array[1].getOptions(), options);
-            } else {
-                options.withValues = array[1].withValues || options.withValues;
-                options = extend({}, array[1], options);
+
+                // options always has a valid direction value!
+                array[1] = options.direction;
             }
-            array[1] = options.direction;
         }
     }
 

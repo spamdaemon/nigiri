@@ -167,3 +167,50 @@ var binarySearch = function(keys, compareKeys, pos, key) {
     }
     return keys.length;
 };
+
+/**
+ * Perform a binary search on array.
+ * 
+ * @param keys
+ *            an sorted array of values to search
+ * @param compareKeys
+ *            a compare keys function
+ * @param pos
+ *            a starting position in the array
+ * @param key
+ *            a key to search for
+ * @return the index at which the key is found or -1 if not found
+ */
+var findByBinarySearch = function(keys, compareKeys, pos, key) {
+    // simple function for now
+    var i = pos, j = keys.length - 1, k, cmp;
+
+    // defensive programming here, should not really ever happen
+    if (pos > j) {
+        console.log("Error " + pos + " already at the end");
+        return -1;
+    }
+
+    while (i < j) {
+        // due to floor, k !== j, but it might be ===i
+        k = Math.floor((i + j) / 2);
+        cmp = compareKeys(key, keys[k]);
+        if (cmp === 0) {
+            return k;
+        }
+        if (cmp < 0) {
+            // need to use k, because we might need to return k
+            j = k;
+        } else {
+            // since key[k] is less k, will never be a valid answer
+            // so we can safely increase by 1
+            i = k + 1;
+        }
+    }
+
+    // assert i===j
+    if (compareKeys(key, keys[i]) === 0) {
+        return i;
+    }
+    return -1;
+};

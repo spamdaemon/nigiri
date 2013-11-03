@@ -1,4 +1,4 @@
-var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, createKeyRange) {
+var MyQuery = (function(copy, extend, TheRequest, Factory, Options, KeyPath, KeySet, createKeyRange) {
     var compareKeys = Factory.cmp;
 
     // collect the indexes for the store and build a structure that we can more easily query
@@ -129,11 +129,16 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
     };
 
     // start executing requests against the individual indexes
-    var startIndexQueries = function(store, indexes, initialKeys) {
+    var startIndexQueries = function(store, indexes, includedKeys, excludedKeys) {
 
         var nOutstanding = 0;
-        var allKeys = initialKeys === null ? null : initialKeys.keys;
+        var allKeys = includedKeys === null ? null : includedKeys.keys;
         var firstError = false;
+
+        var opts = new Options({
+            includedPrimaryKeys : includedKeys || null,
+            excludedPrimaryKeys : excludedKeys || null
+        });
 
         var request = null;
 
@@ -177,7 +182,7 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
                 if (request === null) {
                     request = new TheRequest(null, store, store.transaction);
                 }
-                req = index.index.getAllPrimaryKeys(index.keyValue);
+                req = index.index.getAllPrimaryKeys(index.keyValue, opts);
                 request.__setOwnerOf(req);
                 req.onsuccess = onsuccess(req);
                 req.onerror = onerror(req);
@@ -237,7 +242,8 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
             }
         }
         options = options || {};
-        this.__primaryKeys = options.primaryKeys || null;
+        this.__includedPrimaryKeys = options.includedPrimaryKeys || null;
+        this.__excludedPrimaryKeys = options.excludedPrimaryKeys || null;
     };
 
     var openCursor = function(store, query, range, options) {
@@ -248,7 +254,7 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
         var indexes = createIndexes(store);
         var unassigned = assignConditions(indexes, this.__conditions);
         var filter = createFilter(unassigned, this.__filter);
-        var primaryKeys = startIndexQueries(store, indexes, this.__primaryKeys);
+        var primaryKeys = startIndexQueries(store, indexes, this.__includedPrimaryKeys, this.__excludedPrimaryKeys);
         var request = null;
         var range = null;
 
@@ -291,4 +297,4 @@ var MyQuery = (function(copy, extend, TheRequest, Factory, KeyPath, KeySet, crea
 
     return TheQuery;
 
-})(shallow_copy, extend, MyRequest, FACTORY, MyKeyPath, MyKeySet, createKeyRange);
+})(shallow_copy, extend, MyRequest, FACTORY, MyOptions, MyKeyPath, MyKeySet, createKeyRange);

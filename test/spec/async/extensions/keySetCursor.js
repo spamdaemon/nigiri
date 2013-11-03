@@ -95,7 +95,7 @@ describe("KeySetCursor", function() {
                 expect(results[2]).toEqual('c');
                 expect(results[3]).toEqual('b');
                 expect(results[4]).toEqual('b');
-                expect(results.length === 5);
+                expect(results.length).toBe(5);
                 done();
                 return;
             }
@@ -120,7 +120,7 @@ describe("KeySetCursor", function() {
                 expect(results[0]).toEqual('d');
                 expect(results[1]).toEqual('c');
                 expect(results[2]).toEqual('b');
-                expect(results.length === 3);
+                expect(results.length).toBe(3);
                 done();
                 return;
             }
@@ -143,7 +143,7 @@ describe("KeySetCursor", function() {
             if (!req.result) {
                 expect(results[0]).toEqual('c');
                 expect(results[1]).toEqual('e');
-                expect(results.length === 2);
+                expect(results.length ).toBe( 2);
                 done();
                 return;
             }
@@ -166,7 +166,7 @@ describe("KeySetCursor", function() {
             if (!req.result) {
                 expect(results[0]).toEqual('b');
                 expect(results[1]).toEqual('f');
-                expect(results.length === 2);
+                expect(results.length ).toBe( 2);
                 done();
                 return;
             }
