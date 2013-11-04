@@ -1952,11 +1952,23 @@ var getKeyByCursor = (function(TheRequest) {
     var addPutAll = function(store, method, xarray) {
 
         var array = [ null ];
-        if (xarray.length == 2) {
+        if (xarray.length === 2) {
             array.push(xarray[1]);
         }
 
-        var objects = xarray[0];
+        var objectGenerator = xarray[0];
+        if (typeof objectGenerator !== 'function') {
+
+            objectGenerator = (function(objects) {
+                var i = 0;
+                return function() {
+                    if (i < objects.length) {
+                        return objects[i++];
+                    }
+                    return null;
+                };
+            })(xarray[0]);
+        }
 
         var request = new TheRequest(null, store, store.transaction);
         var i, n, addRequest;
@@ -2003,8 +2015,9 @@ var getKeyByCursor = (function(TheRequest) {
 
         // TODO: we may want to be even more special here and do things in batches
         var updateFN = store[method];
-        for (i = 0, n = objects.length; i < n; ++i) {
-            array[0] = objects[i];
+        var object;
+        while ((object = objectGenerator()) !== null) {
+            array[0] = object;
             try {
                 addRequest = updateFN.apply(store, array);
                 ++nOutstanding;
