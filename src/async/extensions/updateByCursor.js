@@ -86,7 +86,7 @@ var updateByCursor = (function(TheRequest, ObjectStore, Index) {
                 }
                 cursorRequest.result["continue"]();
             } catch (error) {
-                console.log(error);
+                console.log(error.stack);
                 ++result.errors;
                 notifyWhenDone();
             }

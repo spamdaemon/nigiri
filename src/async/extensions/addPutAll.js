@@ -75,6 +75,7 @@
                 addRequest.onsuccess = onsuccess;
                 addRequest.onerror = onerror;
             } catch (error) {
+                console.log(error.stack);
                 // the the request for now
                 ++result.errors;
                 throw request;

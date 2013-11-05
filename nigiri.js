@@ -1865,7 +1865,7 @@ var updateByCursor = (function(TheRequest, ObjectStore, Index) {
                 }
                 cursorRequest.result["continue"]();
             } catch (error) {
-                console.log(error);
+                console.log(error.stack);
                 ++result.errors;
                 notifyWhenDone();
             }
@@ -2024,6 +2024,7 @@ var getKeyByCursor = (function(TheRequest) {
                 addRequest.onsuccess = onsuccess;
                 addRequest.onerror = onerror;
             } catch (error) {
+                console.log(error.stack);
                 // the the request for now
                 ++result.errors;
                 throw request;
