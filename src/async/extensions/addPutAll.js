@@ -1,4 +1,4 @@
-(function(TheRequest, ObjectStore) {
+zone("nigiri.extension").factory("addPutAll", [ "MyRequest" ], function(TheRequest) {
 
     var addPutAll = function(store, method, xarray) {
 
@@ -85,13 +85,20 @@
 
         return request;
     };
+    return addPutAll;
+});
 
-    ObjectStore.prototype.addAll = function() {
-        return addPutAll(this, "add", arguments);
+zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "addPutAll" ], function(addPutAll) {
+
+    return function(ObjectStore) {
+        ObjectStore.prototype.addAll = function() {
+            return addPutAll(this, "add", arguments);
+        };
+
+        ObjectStore.prototype.putAll = function() {
+            return addPutAll(this, "put", arguments);
+        };
+
+        return ObjectStore;
     };
-
-    ObjectStore.prototype.putAll = function() {
-        return addPutAll(this, "put", arguments);
-    };
-
-})(MyRequest, MyObjectStore);
+});

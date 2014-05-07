@@ -51,7 +51,7 @@ describe("Cursor", function() {
         };
     });
 
-    async.it("should iterate over one value", function(done) {
+    async.it("should iterate over one value", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var theCursor = theStore.openCursor(Nigiri.KeyRange.only(2));
         var results = {
@@ -75,7 +75,7 @@ describe("Cursor", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
     async.it("should advance by 2", function(done) {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");

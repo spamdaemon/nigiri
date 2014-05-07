@@ -47,7 +47,7 @@ describe("Index", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("get the first value in a sequence", function(done) {
+    async.it("get the first value in a sequence", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.get(new Nigiri.KeySet([ "k", "r", "w", "z" ]));
@@ -61,8 +61,9 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
-    async.it("should open a keyvaluecursor", function(done) {
+    }));
+
+    async.it("should open a keyvaluecursor", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.openCursor(new Nigiri.KeySet([ "c", "d", "k", "z" ]));
@@ -80,9 +81,9 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should open a key cursor", function(done) {
+    async.it("should open a key cursor", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.openKeyCursor(new Nigiri.KeySet([ "c", "d", "k", "z" ]));
@@ -100,9 +101,9 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should count all entries within a keyset", function(done) {
+    async.it("should count all entries within a keyset", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.count(new Nigiri.KeySet([ "c", "d", "k", "z" ]));
@@ -115,23 +116,23 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("get the first key in a sequence", function(done) {
+    async.it("get the first key in a sequence", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.getKey(new Nigiri.KeySet([ "k", "r", "w", "z" ]));
         req.onsuccess = function(e) {
-            expect(e.currentTarget.result).toEqual("w");
+            expect(e.currentTarget.result).toBe(9);
             done();
         };
         req.onerror = function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should return undefined for a primary key that does not exist", function(done) {
+    async.it("should return undefined for a primary key that does not exist", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.getKey(new Nigiri.KeySet([ "k", "r" ]));
@@ -143,9 +144,9 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should return undefined for a value that doesn't exist", function(done) {
+    async.it("should return undefined for a value that doesn't exist", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.get(new Nigiri.KeySet([ "k", "r" ]));
@@ -157,9 +158,9 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should consider excluded/included keys and primary keys", function(done) {
+    async.it("should consider excluded/included keys and primary keys", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var options = {
             includedKeys : [ "c", "d", "e", "f" ],
@@ -184,6 +185,39 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
+
+    async.it("should get a value by its key", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
+        var req = theIndex.get("f", new Nigiri.Options({
+            limit : 100
+        }));
+        req.onsuccess = function(e) {
+            expect(e.currentTarget.result.value).toEqual("f");
+            expect(req.result.value).toEqual(e.currentTarget.result.value);
+            done();
+        };
+        req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    async.it("should get a primary key by its indexed key", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
+        var req = theIndex.getKey("f", new Nigiri.Options({
+            limit : 100
+        }));
+        req.onsuccess = function(e) {
+            expect(e.currentTarget.result).toBe(8);
+            done();
+        };
+        req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    }));
 
 });

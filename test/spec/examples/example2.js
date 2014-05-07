@@ -33,7 +33,7 @@ describe("Example 2", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("should execute a query over multiple indexes", function(done) {
+    async.it("should execute a query over multiple indexes", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var BOOKS = setup.db.transaction([ "store" ]).objectStore("store");
         var req = BOOKS.openCursor(new Nigiri.Query({
             author : new Nigiri.KeySet([ "Crockford", "McFarland" ]),
@@ -55,6 +55,6 @@ describe("Example 2", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 });

@@ -1,31 +1,36 @@
-var MyIndex = function(idbIndex, objectStore) {
-    this.__impl = idbIndex;
-    this.__objectStore = objectStore;
-};
+zone("nigiri").protectedFactory("MyIndex", [ "Utils" ,"cursors"], function(Utils,cursors) {
 
-MyIndex.prototype.get = function() {
-    return createGetByCursorRequest(this.__impl, this, this.__objectStore.transaction, arguments);
-};
+    var MyIndex = function(idbIndex, objectStore) {
+        this.__impl = idbIndex;
+        this.__objectStore = objectStore;
+    };
 
-MyIndex.prototype.getKey = function() {
-    return createGetKeyByCursorRequest(this.__impl, this, this.__objectStore.transaction, arguments);
-};
+    MyIndex.prototype.get = function() {
+        return cursors.createGetByCursorRequest(this.__impl, this, this.__objectStore.transaction, arguments);
+    };
 
-MyIndex.prototype.count = function() {
-    return createCountByCursorRequest(this.__impl, this, this.__objectStore.transaction, arguments);
-};
+    MyIndex.prototype.getKey = function() {
+        return cursors.createGetKeyByCursorRequest(this.__impl, this, this.__objectStore.transaction, arguments);
+    };
 
-MyIndex.prototype.openCursor = function() {
-    return createCursorRequest(this.__impl, this, this.__objectStore.transaction, true, arguments);
-};
+    MyIndex.prototype.count = function() {
+        return cursors.createCountByCursorRequest(this.__impl, this, this.__objectStore.transaction, arguments);
+    };
 
-MyIndex.prototype.openKeyCursor = function() {
-    return createCursorRequest(this.__impl, this, this.__objectStore.transaction, false, arguments);
-};
+    MyIndex.prototype.openCursor = function() {
+        return cursors.createCursorRequest(this.__impl, this, this.__objectStore.transaction, true, arguments);
+    };
 
-// attributes
-addConstAttribute(MyIndex.prototype, "name");
-addConstProperty(MyIndex.prototype, "objectStore");
-addConstAttribute(MyIndex.prototype, "keyPath");
-addConstAttribute(MyIndex.prototype, "multiEntry");
-addConstAttribute(MyIndex.prototype, "unique");
+    MyIndex.prototype.openKeyCursor = function() {
+        return cursors.createCursorRequest(this.__impl, this, this.__objectStore.transaction, false, arguments);
+    };
+
+    // attributes
+    Utils.addConstAttribute(MyIndex.prototype, "name");
+    Utils.addConstProperty(MyIndex.prototype, "objectStore");
+    Utils.addConstAttribute(MyIndex.prototype, "keyPath");
+    Utils.addConstAttribute(MyIndex.prototype, "multiEntry");
+    Utils.addConstAttribute(MyIndex.prototype, "unique");
+
+    return MyIndex;
+});

@@ -1,4 +1,4 @@
-var deleteByCursor = (function(TheRequest) {
+zone("nigiri.extension").factory("deleteByCursor", [ "MyRequest", "updateByCursor" ], function(TheRequest, updateByCursor) {
 
     var updateFN = function() {
         return undefined;
@@ -8,4 +8,4 @@ var deleteByCursor = (function(TheRequest) {
         return updateByCursor(cursorRequest, updateFN);
     };
 
-})(MyRequest);
+});

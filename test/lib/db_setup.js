@@ -2,6 +2,8 @@ this.db_setup = (function(global) {
 
     var nextDB = 0;
 
+    var Nigiri = zone("nigiri").get("Nigiri");
+    
     function is_array(o) {
         if (o != null && typeof o == "object") {
             return (typeof o.push == "undefined") ? false : true;

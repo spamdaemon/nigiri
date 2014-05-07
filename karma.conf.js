@@ -8,48 +8,9 @@ module.exports = function(config) {
         frameworks : [ 'jasmine' ],
 
         // list of files / patterns to load in the browser
-        files : [
-        "src/header.js",//
-        "src/utils.js",//
-        "src/wrapper.js",//
-        "src/event.js",//
-        "src/eventTarget.js", //
+        files : [ "libs/zone.js",
 
-        "src/async/keyRange.js",//
-        "src/async/request.js",//
-        "src/async/transaction.js",//
-        "src/async/database.js",//
-        "src/async/openDBRequest.js",//
-        "src/async/factory.js",// /
-        "src/async/cursor.js",//
-        "src/async/cursorWithValues.js",//
-        "src/async/cursors.js",//
-        "src/async/objectStore.js",//
-        "src/async/index.js",//
-        "src/async/environment.js",//
-        //
-        "src/async/extensions/keySet.js", //
-        "src/async/extensions/keyPath.js", //
-        "src/async/extensions/options.js",//
-        "src/async/extensions/ranges.js",//
-        "src/async/extensions/createGenericCursorRequest.js",//
-        "src/async/extensions/createKeySetCursorRequest.js",//
-        "src/async/extensions/countByCursor.js",//
-        "src/async/extensions/updateByCursor.js",//
-        "src/async/extensions/deleteByCursor.js",//
-        "src/async/extensions/getByCursor.js",//
-        "src/async/extensions/getKeyByCursor.js",//
-        "src/async/extensions/cursors.js",//
-        "src/async/extensions/query.js",//
-        "src/async/extensions/addPutAll.js",//
-        "src/async/extensions/getAllByCursor.js",//
-        "src/async/extensions/getAllKeysByCursor.js",// 
-        "src/async/extensions/getAllPrimaryKeysByCursor.js",// 
-        "src/async/extensions/cursors.js",//
-
-        //
-        "src/export.js", //
-        
+        'src/**/*.js',
         //
         'test/lib/**/*.js',//
         // special tests
@@ -64,7 +25,7 @@ module.exports = function(config) {
 
         // test results reporter to use
         // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-        reporters : [ 'progress', 'html' ],
+        reporters : [ 'progress' ],
 
         // the default configuration
         htmlReporter : {
@@ -83,7 +44,7 @@ module.exports = function(config) {
 
         // level of logging
         // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-        logLevel : LOG_INFO,
+        logLevel : config.LOG_DEBUG,
 
         // enable / disable watching file and executing tests whenever any file changes
         autoWatch : true,
@@ -97,8 +58,8 @@ module.exports = function(config) {
         // - PhantomJS
         // - IE (only Windows)
         browsers : [ //
-          'Chrome' //
-        , 'Firefox'//
+        'Chrome' //
+        // , 'Firefox'//
         ],
 
         // If browser does not capture in given timeout [ms], kill it

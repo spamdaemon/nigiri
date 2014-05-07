@@ -1,4 +1,4 @@
-var updateByCursor = (function(TheRequest, ObjectStore, Index) {
+zone("nigiri.extension").factory("updateByCursor", [ "MyRequest" ], function(TheRequest) {
 
     /**
      * Create a new update function. The update function takes a value
@@ -100,15 +100,32 @@ var updateByCursor = (function(TheRequest, ObjectStore, Index) {
         return request;
     };
 
+    return updateAll;
+});
+
+zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "updateByCursor" ], function(updateAll) {
+
     var update = function() {
         var fn = [].shift.call(arguments);
         var req = this.openCursor.apply(this, arguments);
         return updateAll(req, fn);
     };
 
-    ObjectStore.prototype.update = update;
-    Index.prototype.update = update;
+    return function(ObjectStore) {
+        ObjectStore.prototype.update = update;
+        return ObjectStore;
+    };
+});
+zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "updateByCursor" ], function(updateAll) {
 
-    return updateAll;
+    var update = function() {
+        var fn = [].shift.call(arguments);
+        var req = this.openCursor.apply(this, arguments);
+        return updateAll(req, fn);
+    };
 
-})(MyRequest, MyObjectStore, MyIndex);
+    return function(Index) {
+        Index.prototype.update = update;
+        return Index;
+    };
+});

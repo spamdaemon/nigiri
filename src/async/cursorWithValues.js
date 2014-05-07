@@ -1,10 +1,14 @@
-var MyCursorWithValues = function(idbCursor, source, transaction) {
-    MyCursor.call(this, idbCursor, source, transaction);
-    this.__impl = idbCursor;
-    this.__source = source;
-};
+zone("nigiri").protectedFactory("MyCursorWithValues", [ "MyCursor","Utils" ], function(MyCursor,Utils) {
+    var MyCursorWithValues = function(idbCursor, source, transaction) {
+        MyCursor.call(this, idbCursor, source, transaction);
+        this.__impl = idbCursor;
+        this.__source = source;
+    };
 
-MyCursorWithValues.prototype = Object.create(MyCursor.prototype);
-MyCursorWithValues.prototype.constructor = MyCursorWithValues;
+    MyCursorWithValues.prototype = Object.create(MyCursor.prototype);
+    MyCursorWithValues.prototype.constructor = MyCursorWithValues;
 
-addConstAttribute(MyCursorWithValues.prototype, "value");
+    Utils.addConstAttribute(MyCursorWithValues.prototype, "value");
+
+    return MyCursorWithValues;
+});

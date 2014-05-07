@@ -1,0 +1,106 @@
+var NativeDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB;
+
+var enumerate_prevunique = function(idx) {
+    var maxIterations = 20;
+    var i = 0;
+    var keys = [ [ "h", 11 ], [ "d", 6 ], [ "d", 5 ], [ "c", 5 ], [ "c", 4 ], [ "b", 2 ], [ "b", 1 ] ];
+
+    var req = idx.openKeyCursor(IDBKeyRange.bound([ 'b', 0 ], [ 'z', 11 ]), "prevunique");
+    req.onsuccess = function(e) {
+        if (--maxIterations === 0) {
+            console.log("Exceeded maximum number of iterations (CHROME only)");
+            return;
+        }
+
+        if (!e.target.result) {
+            return;
+        }
+        var cursor = e.target.result;
+        var actualKey = cursor.key;
+        console.log("Cursor key " + JSON.stringify(actualKey));
+        while (i < keys.length) {
+            var cmp = NativeDB.cmp(keys[i], actualKey);
+            if (cmp < 0) {
+                console.log("Continue to next key " + JSON.stringify(keys[i]));
+                cursor["continue"](keys[i]);
+                return;
+            }
+            if (cmp === 0) {
+                console.log("FOUND " + JSON.stringify(keys[i]));
+            }
+            ++i;
+        }
+    };
+
+};
+
+// ///////////////////////////////////////////////////////////////
+//
+// BOILERPLATE DATABASE SETUP
+//
+var data = [ {
+    key : 0,
+    value : [ "a", 0 ]
+}, {
+    key : 1,
+    value : [ "a", 0 ]
+}, {
+    key : 2,
+    value : [ "b", 2 ]
+}, {
+    key : 3,
+    value : [ "b", 2 ]
+}, {
+    key : 4,
+    value : [ "c", 4 ]
+}, {
+    key : 5,
+    value : [ "d", 5 ]
+}, {
+    key : 6,
+    value : [ "d", 5 ]
+}, {
+    key : 7,
+    value : [ "e", 7 ]
+}, {
+    key : 8,
+    value : [ "f", 8 ]
+}, {
+    key : 9,
+    value : [ "w", 9 ]
+}, {
+    key : 10,
+    value : [ "z", 10 ]
+} ];
+
+var req = NativeDB.open("testdb", 1);
+
+req.onupgradeneeded = function(e) {
+    var i;
+    var db = req.result;
+    var store = db.createObjectStore("data", {
+        keyPath : "key"
+    });
+    store.createIndex("index", "value", {
+        unique : false,
+        multiEntry : false
+    });
+    for (i = 0; i < data.length; ++i) {
+        store.add(data[i]);
+    }
+};
+
+req.onsuccess = function(e) {
+    var db = e.target.result;
+    console.log("Database opened");
+    var tx = db.transaction([ "data" ], "readonly");
+    var idx = tx.objectStore("data").index("index");
+    enumerate_prevunique(idx);
+};
+
+req.onerror = function(e) {
+    console.log("Failed to open the database");
+};
+req.onblocked = function(e) {
+    console.log("Database access blocked");
+};

@@ -1,16 +1,21 @@
-var MyOptions = (function(copy, extend) {
+zone("nigiri.extension").factory("MyOptions", [ "Utils" ], function(Utils) {
 
-    var arrayOrNull = function(array)
-    {
-        return array===null || array.length===0 ? null : array;
+    var arrayOrNull = function(array) {
+        return array === null || array.length === 0 ? null : array;
     };
-    
+
     var TheOptions = function(opts) {
         var i, n;
-        extend(this, copy(opts || {}));
+        Utils.extend(this, Utils.shallow_copy(opts || {}));
 
         this.isDefault = true;
         this.isStandard = true;
+
+        if (!this.hasOwnProperty("unique") || !this.unique) {
+            this.unique = false;
+        }
+        this.isDefault = this.isDefault && this.unique === false;
+        this.isStandard = this.isStandard && this.unique === false;
 
         if (!this.hasOwnProperty("filter")) {
             this.filter = null;
@@ -40,37 +45,37 @@ var MyOptions = (function(copy, extend) {
             this.excludedPrimaryKeys = null;
         }
         this.excludedPrimaryKeys = arrayOrNull(this.excludedPrimaryKeys);
-        
-        this.isDefault = this.isDefault && this.excludedPrimaryKeys===null;
-        this.isStandard = this.isStandard && this.excludedPrimaryKeys===null;
+
+        this.isDefault = this.isDefault && this.excludedPrimaryKeys === null;
+        this.isStandard = this.isStandard && this.excludedPrimaryKeys === null;
 
         if (!this.hasOwnProperty("excludedKeys")) {
             this.excludedKeys = null;
         }
         this.excludedKeys = arrayOrNull(this.excludedKeys);
-        this.isDefault = this.isDefault && this.excludedKeys===null;
-        this.isStandard = this.isStandard && this.excludedKeys===null;
+        this.isDefault = this.isDefault && this.excludedKeys === null;
+        this.isStandard = this.isStandard && this.excludedKeys === null;
 
         if (!this.hasOwnProperty("includedPrimaryKeys")) {
             this.includedPrimaryKeys = null;
         }
         this.includedPrimaryKeys = arrayOrNull(this.includedPrimaryKeys);
-        this.isDefault = this.isDefault && this.includedPrimaryKeys===null;
-        this.isStandard = this.isStandard && this.includedPrimaryKeys===null;
+        this.isDefault = this.isDefault && this.includedPrimaryKeys === null;
+        this.isStandard = this.isStandard && this.includedPrimaryKeys === null;
 
         if (!this.hasOwnProperty("includedKeys")) {
             this.includedKeys = null;
         }
         this.includedKeys = arrayOrNull(this.includedKeys);
-        this.isDefault = this.isDefault && this.includedKeys===null;
-        this.isStandard = this.isStandard && this.includedKeys===null;
+        this.isDefault = this.isDefault && this.includedKeys === null;
+        this.isStandard = this.isStandard && this.includedKeys === null;
 
         Object.freeze(this);
     };
 
     TheOptions.prototype.getOptions = function() {
-        return copy(this);
+        return Utils.shallow_copy(this);
     };
 
     return TheOptions;
-})(shallow_copy, extend);
+});

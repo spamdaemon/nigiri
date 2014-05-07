@@ -47,7 +47,7 @@ describe("objectStoreQuery", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("should find an item", function(done) {
+    async.it("should find an item", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var query = {
             indexed0 : "a0",
             indexed1 : new Nigiri.KeySet([ "a1", "b1" ]),
@@ -74,9 +74,9 @@ describe("objectStoreQuery", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should find an item with the nested path", function(done) {
+    async.it("should find an item with the nested path", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var query = {
             "$group.$indexed" : "a",
         };
@@ -100,9 +100,9 @@ describe("objectStoreQuery", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should find an unindexed", function(done) {
+    async.it("should find an unindexed", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var query = {
             unindexed0 : new Nigiri.KeySet([ "u0", "u1" ])
         };
@@ -126,9 +126,9 @@ describe("objectStoreQuery", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should find no item", function(done) {
+    async.it("should find no item", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var query = {
             indexed0 : "x0",
@@ -147,7 +147,7 @@ describe("objectStoreQuery", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
     async.it("should use included and excluded primary keys", function(done) {
 
@@ -181,7 +181,7 @@ describe("objectStoreQuery", function() {
         };
     });
 
-    async.it("should not fail this unit test", function(done) {
+    async.it("should not fail this unit test", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var query = {
             "key" : new Nigiri.KeySet([ 2 ]),
@@ -208,6 +208,6 @@ describe("objectStoreQuery", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 });

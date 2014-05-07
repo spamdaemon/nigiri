@@ -1,4 +1,4 @@
-var MyKeyPath = (function(isArray) {
+zone("nigiri.extension").factory("MyKeyPath", [ "Utils" ], function(Utils) {
 
     var applyKeyPath = function(path, object) {
         var i, n = path.length;
@@ -19,7 +19,7 @@ var MyKeyPath = (function(isArray) {
     var MyKeyPath = function(paths) {
 
         var i, n, p, ps;
-        if (!isArray(paths)) {
+        if (!Utils.is_array(paths)) {
             paths = [ paths ];
         }
         this.__paths = Object.freeze(paths.slice(0));
@@ -34,7 +34,7 @@ var MyKeyPath = (function(isArray) {
         }
     };
 
-    addConstProperty(MyKeyPath.prototype, "paths");
+    Utils.addConstProperty(MyKeyPath.prototype, "paths");
 
     MyKeyPath.prototype.applyPath = function(object) {
         var i, n = this.__paths.length, path, result = {};
@@ -51,7 +51,7 @@ var MyKeyPath = (function(isArray) {
 
     MyKeyPath.applyPath = function(stringOrArray, object) {
         var i, n, res;
-        if (isArray(stringOrArray)) {
+        if (Utils.is_array(stringOrArray)) {
             res = [];
             for (i = 0, n = stringOrArray.length; i < n; ++i) {
                 try {
@@ -70,4 +70,4 @@ var MyKeyPath = (function(isArray) {
         return res;
     };
     return MyKeyPath;
-})(is_array);
+});

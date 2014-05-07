@@ -1,4 +1,4 @@
-var MyKeyRange = (function() {
+zone("nigiri").protectedFactory("MyKeyRange", [ "Utils" ], function(Utils) {
 
     var MyKeyRange = function(idbKeyRange) {
         this.__impl = idbKeyRange;
@@ -25,10 +25,10 @@ var MyKeyRange = (function() {
     };
 
     // attributes
-    addConstAttribute(MyKeyRange.prototype, "lower");
-    addConstAttribute(MyKeyRange.prototype, "upper");
-    addConstAttribute(MyKeyRange.prototype, "lowerOpen");
-    addConstAttribute(MyKeyRange.prototype, "upperOpen");
+    Utils.addConstAttribute(MyKeyRange.prototype, "lower");
+    Utils.addConstAttribute(MyKeyRange.prototype, "upper");
+    Utils.addConstAttribute(MyKeyRange.prototype, "lowerOpen");
+    Utils.addConstAttribute(MyKeyRange.prototype, "upperOpen");
 
     return MyKeyRange;
-})();
+});

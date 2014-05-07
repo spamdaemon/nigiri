@@ -1,4 +1,13 @@
-var FACTORY = (function(REQUEST, INDEXEDDB_PROVIDER) {
+zone("nigiri").factory("IndexDBProvider", [], function() {
+    return window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB;
+});
+zone("nigiri").protectedFactory("cmp", [ "IndexDBProvider" ], function(provider) {
+    return function(a, b) {
+        return provider.cmp(a, b);
+    };
+});
+
+zone("nigiri").protectedFactory("FACTORY", [ "MyOpenDBRequest", "IndexDBProvider" ], function(REQUEST, INDEXEDDB_PROVIDER) {
     "use strict";
 
     if (!INDEXEDDB_PROVIDER) {
@@ -26,4 +35,4 @@ var FACTORY = (function(REQUEST, INDEXEDDB_PROVIDER) {
 
     return new provider();
 
-})(MyOpenDBRequest);
+});

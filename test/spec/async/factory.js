@@ -23,7 +23,7 @@ describe("factory test", function() {
     async.beforeEach(deleteDatabase("BEFORE EACH"));
     async.afterEach(deleteDatabase("AFTER EACH"));
 
-    async.it("should create a database", function(done) {
+    async.it("should create a database",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var upgraded = false;
         var req = Nigiri.IndexedDB.open(dbName, 1);
         expect(req.readyState).toEqual("pending");
@@ -53,7 +53,7 @@ describe("factory test", function() {
             req.result.close();
             expect(false).toBe(true);
         };
-    });
+    }));
     
     
 

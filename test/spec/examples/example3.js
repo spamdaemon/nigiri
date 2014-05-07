@@ -33,7 +33,7 @@ describe("Example 3", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("count using a complex query", function(done) {
+    async.it("count using a complex query", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var BOOKS = setup.db.transaction([ "store" ]).objectStore("store");
         var req = BOOKS.count(new Nigiri.Query({
             year : Nigiri.KeyRange.upperBound(2011)
@@ -47,6 +47,6 @@ describe("Example 3", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 });

@@ -48,7 +48,7 @@ describe("KeySetCursorWithValues", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("should iterate over a given key (forward)", function(done) {
+    async.it("should iterate over a given key (forward)",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.openCursor(new Nigiri.KeySet([ 2, 4, 6, 12 ]));
         var results = [];
@@ -80,9 +80,9 @@ describe("KeySetCursorWithValues", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should iterate in the reverse order", function(done) {
+    async.it("should iterate in the reverse order", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.openCursor(new Nigiri.KeySet([ 2, 4, 6, 12 ]), "prev");
         var results = [];
@@ -104,9 +104,9 @@ describe("KeySetCursorWithValues", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should skip over keys with advance", function(done) {
+    async.it("should skip over keys with advance", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.openCursor(new Nigiri.KeySet([ 4, 5, 6, 7 ]));
         var results = [];
@@ -127,5 +127,5 @@ describe("KeySetCursorWithValues", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 });

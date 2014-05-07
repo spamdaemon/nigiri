@@ -47,7 +47,7 @@ describe("getAllKeys", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("get all keys in the index", function(done) {
+    async.it("get all keys in the index", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var theIndex = theStore.index("value");
@@ -66,9 +66,9 @@ describe("getAllKeys", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("get all keys in an object store", function(done) {
+    async.it("get all keys in an object store", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.getAllKeys(new Nigiri.KeySet([ 0, 2, 4, 6, 8, 10 ]));
@@ -86,6 +86,6 @@ describe("getAllKeys", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 });

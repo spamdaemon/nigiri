@@ -47,7 +47,7 @@ describe("Example 1", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("should enumerate 2 items in reverse order", function(done) {
+    async.it("should enumerate 2 items in reverse order", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var INTEGERS = setup.db.transaction([ "store" ], "readwrite").objectStore("store");
         var req = INTEGERS.openCursor(IDBKeyRange.bound(0, 10), new Nigiri.Options({
             offset : 3,
@@ -74,7 +74,7 @@ describe("Example 1", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 
 });

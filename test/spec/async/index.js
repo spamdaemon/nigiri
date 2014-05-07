@@ -38,7 +38,7 @@ describe("Index", function() {
         };
     });
 
-    async.it("should count all entries within a key range", function(done) {
+    async.it("should count all entries within a key range", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.count(Nigiri.KeyRange.bound("a","c"));
@@ -51,9 +51,9 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should get a value by its key", function(done) {
+    async.it("should get a value by its key", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.get("bar");
@@ -66,9 +66,9 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should get a value by a keyrange", function(done) {
+    async.it("should get a value by a keyrange", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.get(Nigiri.KeyRange.bound("a","c"));
@@ -81,7 +81,7 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
     async.it("should get a primary key by its indexed key", function(done) {
 
@@ -97,7 +97,7 @@ describe("Index", function() {
         };
     });
 
-    async.it("should get a primary key by a indexed keyrange", function(done) {
+    async.it("should get a primary key by a indexed keyrange", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.getKey(Nigiri.KeyRange.bound("a","c"));
@@ -110,7 +110,7 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
     async.it("should return undefined for a value that doesn't exist", function(done) {
 
@@ -140,7 +140,7 @@ describe("Index", function() {
         };
     });
 
-    async.it("should open a keyvaluecursor", function(done) {
+    async.it("should open a keyvaluecursor", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.openCursor(Nigiri.KeyRange.bound("a","c"));
@@ -158,9 +158,9 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should open a key cursor", function(done) {
+    async.it("should open a key cursor", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.openKeyCursor(Nigiri.KeyRange.bound("a","c"));
@@ -179,7 +179,7 @@ describe("Index", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
     it("should have a name", function() {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");

@@ -54,16 +54,28 @@ If you find this project useful and want to report a problem, please provide a u
 
 Examples
 --------
+### EnumerableKey
+
+TODO
 
 ### KeySet
 
-Use a KeySet to find specific items in index or store. The KeySet can be used in the same way that an IDBKeyRange 
+Use a KeySet to find specific items in an index or a store. The KeySet can be used in the same way that an IDBKeyRange 
 can be used:
 ```X.openCursor(new Nigiri.KeySet([ key1, key2, key3, ... ]))```
 
 ```X.openKeyCursor(new Nigiri.KeySet([ key1, key2, key3, ... ]))```
 
 The keys must be specified in sorted order.
+
+### MultiKey
+
+Use a Multikey to find specific items in an index or store when the key is an array:
+```X.openCursor(new Nigiri.MultiKey([ key1, key2, key3, ... ]))```
+
+```X.openKeyCursor(new Nigiri.MultiKey([ key1, key2, key3, ... ]))```
+
+Each key is itself a key range, but only EnumerableKeyRange instance must be used.
 
 ### Query
 
@@ -93,6 +105,7 @@ Currently, the supported options are
 * `includedPrimaryKeys`, is used to limit the result set  or cursor to a list of primary keys  (must be a sorted array)
 * `excludedKeys`, is used to exclude certain keys from a result set or cursor  (must be a sorted array)
 * `excludedPrimaryKeys`,  is used to exclude certain primary keys from a result set or cursor  (must be a sorted array)
+* `unique`,  is used to ensure that a primary key is only ever returned once (only useful for indexes that have multiple entries for a primary key)
 
 The following cursor enumerates only the two even items 2,4 in reverse order: 
 ```

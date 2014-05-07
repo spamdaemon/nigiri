@@ -36,7 +36,7 @@ describe("Example 5", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("update objects", function(done) {
+    async.it("update objects", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var BOOKS = setup.db.transaction([ "store" ], "readwrite").objectStore("store");
         var now = 2013;
 
@@ -71,6 +71,6 @@ describe("Example 5", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 });

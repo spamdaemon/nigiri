@@ -47,7 +47,7 @@ describe("ObjectStore", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("should open a cursor", function(done) {
+    async.it("should open a cursor", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.openCursor(new Nigiri.KeySet([ 4, 5, 6.5, 9, 10 ]));
         var count = 0;
@@ -64,9 +64,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should count all entries within a key range", function(done) {
+    async.it("should count all entries within a key range", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.count(new Nigiri.KeySet([ 4, 5, 6.5, 9, 10 ]));
@@ -79,9 +79,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("get the first value in a sequence", function(done) {
+    async.it("get the first value in a sequence",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.get(new Nigiri.KeySet([ 4.5, 5.5, 6.5, 9, 10 ]));
@@ -94,9 +94,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should return undefined for a value that doesn't exist", function(done) {
+    async.it("should return undefined for a value that doesn't exist", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.get(new Nigiri.KeySet([ 4.5, 7.5 ]));
@@ -108,9 +108,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should delete a range of values", function(done) {
+    async.it("should delete a range of values", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ], "readwrite").objectStore("store");
         var req = theStore["delete"](new Nigiri.KeySet([ 4, 5, 6.5, 9, 10 ]));
@@ -142,6 +142,6 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 });

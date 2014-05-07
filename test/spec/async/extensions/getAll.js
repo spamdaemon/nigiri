@@ -47,7 +47,7 @@ describe("getAll", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("get all objects in an index", function(done) {
+    async.it("get all objects in an index",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var theIndex = theStore.index("value");
@@ -66,9 +66,9 @@ describe("getAll", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("get all objects in a store", function(done) {
+    async.it("get all objects in a store", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.getAll(new Nigiri.KeySet([ 0, 2, 4, 6, 8, 10 ]));
@@ -86,6 +86,6 @@ describe("getAll", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 });

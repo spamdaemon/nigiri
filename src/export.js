@@ -1,8 +1,5 @@
-window.Nigiri = {
-    IndexedDB : FACTORY,
-    KeyRange : MyKeyRange,
-    KeyPath : MyKeyPath,
-    KeySet : MyKeySet,
-    Query : MyQuery,
-    Options : MyOptions
-};
+zone("nigiri").exportService("Nigiri", [ "FACTORY", "MyKeyRange" ], function(IDB, KeyRange) {
+
+    this.IndexedDB = IDB;
+    this.KeyRange = KeyRange;
+});

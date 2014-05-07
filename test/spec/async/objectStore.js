@@ -37,7 +37,7 @@ describe("ObjectStore", function() {
         };
     });
 
-    async.it("should count all entries within a key range", function(done) {
+    async.it("should count all entries within a key range", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.count(Nigiri.KeyRange.bound(2, 5));
@@ -50,9 +50,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should get a value by its key", function(done) {
+    async.it("should get a value by its key", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.get(2);
@@ -66,9 +66,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should get a value by a keyrange", function(done) {
+    async.it("should get a value by a keyrange", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.get(Nigiri.KeyRange.only(2));
@@ -82,9 +82,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should return undefined for a value that doesn't exist", function(done) {
+    async.it("should return undefined for a value that doesn't exist", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.get(3);
@@ -96,9 +96,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should update an existing value", function(done) {
+    async.it("should update an existing value",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var newValue = {
             key : 2,
@@ -124,9 +124,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should update an non-existent value", function(done) {
+    async.it("should update an non-existent value",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var newValue = {
             key : 3,
@@ -152,9 +152,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should add an new value", function(done) {
+    async.it("should add an new value", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var newValue = {
             key : 3,
@@ -180,9 +180,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should not allow duplicates to be added", function(done) {
+    async.it("should not allow duplicates to be added",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var newValue = {
             key : 2,
@@ -198,9 +198,9 @@ describe("ObjectStore", function() {
             e.preventDefault();
             done();
         };
-    });
+    }));
 
-    async.it("should delete a value", function(done) {
+    async.it("should delete a value",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ], "readwrite").objectStore("store");
         var req = theStore["delete"](2);
@@ -222,9 +222,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should delete a range of values", function(done) {
+    async.it("should delete a range of values", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ], "readwrite").objectStore("store");
         var req = theStore["delete"](Nigiri.KeyRange.bound(1.5, 6));
@@ -246,9 +246,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should open a cursor", function(done) {
+    async.it("should open a cursor",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.openCursor(Nigiri.KeyRange.bound(1.5, 6));
         var count = 0;
@@ -266,9 +266,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("find things in an index", function(done) {
+    async.it("find things in an index", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var theIndex = theStore.index("value");
@@ -287,9 +287,9 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
-    async.it("should clear the store", function(done) {
+    async.it("should clear the store", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ], "readwrite").objectStore("store");
         var req = theStore.clear();
@@ -310,7 +310,7 @@ describe("ObjectStore", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
     it("should have no auto-increment", function() {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");

@@ -29,7 +29,7 @@ describe("performance test", function() {
     async.beforeEach(setup.setup());
     // async.afterEach(setup.teardown());
 
-    async.it("should populate the database with " + nItems + " items", function(done) {
+    async.it("should populate the database with " + nItems + " items", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         console.log("Executing performance test");
 
@@ -114,6 +114,6 @@ describe("performance test", function() {
 
         INSERT();
 
-    });
+    }));
 
 });

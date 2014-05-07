@@ -1,7 +1,7 @@
 /**
  * This object is used for objects that wrap a native object.
  */
-var WrapperObject = (function() {
+zone("nigiri").factory("WrapperObject",function() {
 
     var setImpl = function(object, impl) {
         if (!impl) {
@@ -80,5 +80,4 @@ var WrapperObject = (function() {
     };
 
     return TheWrapper;
-
-})();
+});

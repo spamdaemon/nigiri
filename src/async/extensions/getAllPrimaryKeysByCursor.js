@@ -1,4 +1,4 @@
-(function(TheRequest, Factory, ObjectStore, Index) {
+zone("nigiri.extension").factory("getAllPrimaryKeysByCursor", [ "MyRequest", "nigiri.cmp" ], function(TheRequest, compare) {
 
     var objectToArray = function(obj) {
         var res = [];
@@ -8,7 +8,7 @@
                 res.push(obj[key]);
             }
         }
-        res.sort(Factory.cmp);
+        res.sort(compare);
         return res;
     };
 
@@ -36,15 +36,25 @@
         request.__setOwnerOf(cursorRequest);
         return request;
     };
+    return getAll;
+});
 
-    ObjectStore.prototype.getAllPrimaryKeys = function() {
-        var req = this.openCursor.apply(this, arguments);
-        return getAll(req);
+zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getAllPrimaryKeysByCursor" ], function(getAll) {
+    return function(ObjectStore) {
+        ObjectStore.prototype.getAllPrimaryKeys = function() {
+            var req = this.openCursor.apply(this, arguments);
+            return getAll(req);
+        };
+        return ObjectStore;
     };
+});
 
-    Index.prototype.getAllPrimaryKeys = function() {
-        var req = this.openKeyCursor.apply(this, arguments);
-        return getAll(req);
+zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getAllPrimaryKeysByCursor" ], function(getAll) {
+    return function(Index) {
+        Index.prototype.getAllPrimaryKeys = function() {
+            var req = this.openCursor.apply(this, arguments);
+            return getAll(req);
+        };
+        return Index;
     };
-
-})(MyRequest, FACTORY, MyObjectStore, MyIndex);
+});

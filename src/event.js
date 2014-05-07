@@ -1,4 +1,4 @@
-var EventWrapper = (function(WrapperObject) {
+zone("nigiri").protectedFactory("EventWrapper",["WrapperObject"], function(WrapperObject) {
 
     var TheWrapper = function(event) {
         WrapperObject.call(this, event);
@@ -76,12 +76,12 @@ var EventWrapper = (function(WrapperObject) {
             return WrapperObject.__getOwner(this.__getNativeImpl().currentTarget);
         }
     });
-    
+
     return TheWrapper;
 
-})(WrapperObject);
+});
 
-var createSuccessEvent = (function() {
+zone("nigiri").protectedFactory("createSuccessEvent", function() {
 
     var TheEvent = function(target) {
         var event = new CustomEvent("success", {
@@ -160,9 +160,9 @@ var createSuccessEvent = (function() {
     return function(target) {
         return new TheEvent(target);
     };
-})();
+});
 
-var createErrorEvent = (function() {
+zone("nigiri").protectedFactory("createErrorEvent", function() {
 
     var TheEvent = function(target) {
         var event = new CustomEvent("error", {
@@ -241,4 +241,4 @@ var createErrorEvent = (function() {
     return function(target) {
         return new TheEvent(target);
     };
-})();
+});

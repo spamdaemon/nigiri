@@ -36,7 +36,7 @@ describe("Example 7", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("get objects", function(done) {
+    async.it("get objects", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var BOOKS = setup.db.transaction([ "store" ]).objectStore("store");
 
         var req = BOOKS.getAll(new Nigiri.Query({
@@ -51,6 +51,6 @@ describe("Example 7", function() {
             expect(req.result[1].title).toEqual("JavaScript : The Good Parts");
             done();
         };
-    });
+    }));
 
 });

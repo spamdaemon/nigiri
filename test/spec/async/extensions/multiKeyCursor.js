@@ -1,46 +1,46 @@
-describe("KeySetCursor", function() {
+describe("MultiKey Cursor", function() {
 
     // set up the async spec
     var async = new AsyncSpec(this);
     var setup = new db_setup({
         data : [ {
             key : 0,
-            value : "a"
+            value : [ "a", 0 ]
         }, {
             key : 1,
-            value : "a"
+            value : [ "a", 0 ]
         }, {
             key : 2,
-            value : "b"
+            value : [ "b", 2 ]
         }, {
             key : 3,
-            value : "b"
+            value : [ "b", 2 ]
         }, {
             key : 4,
-            value : "c"
+            value : [ "c", 4 ]
         }, {
             key : 5,
-            value : "d"
+            value : [ "d", 5 ]
         }, {
             key : 6,
-            value : "d"
+            value : [ "d", 5 ]
         }, {
             key : 7,
-            value : "e"
+            value : [ "e", 7 ]
         }, {
             key : 8,
-            value : "f"
+            value : [ "f", 8 ]
         }, {
             key : 9,
-            value : "w"
+            value : [ "w", 9 ]
         }, {
             key : 10,
-            value : "z"
+            value : [ "z", 10 ]
         } ],
         index : {
             "value" : {
                 unique : false,
-                multiEntry : true
+                multiEntry : false
             }
         }
     });
@@ -50,13 +50,15 @@ describe("KeySetCursor", function() {
 
     async.it("should iterate over a given key (forward)", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
-        var req = theIndex.openKeyCursor(new Nigiri.KeySet([ "b", "c", "d", "h" ]));
+        var req = theIndex.openKeyCursor(new Nigiri.MultiKey([ new Nigiri.KeySet([ "b", "c", "d", "h" ]),
+                new Nigiri.KeySet([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]) ]));
         var results = [];
         while (results.length < 11) {
             results.push(false);
         }
 
         req.onsuccess = function() {
+            expect(results.length < 20).toBe(true);
             if (!req.result) {
                 expect(results[0]).toBe(false);
                 expect(results[1]).toBe(false);
@@ -83,18 +85,46 @@ describe("KeySetCursor", function() {
         };
     }));
 
-    async.it("should iterate in the reverse order", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+    async.it("should iterate  and ignore duplicates", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
-        var req = theIndex.openKeyCursor(new Nigiri.KeySet([ "b", "c", "d", "h" ]), "prev");
+        var req = theIndex.openKeyCursor(new Nigiri.MultiKey([ new Nigiri.KeySet([ "b", "c", "d", "h" ]),
+                new Nigiri.KeySet([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]) ]), "nextunique");
         var results = [];
 
         req.onsuccess = function() {
+            expect(results.length < 20).toBe(true);
             if (!req.result) {
-                expect(results[0]).toEqual('d');
-                expect(results[1]).toEqual('d');
-                expect(results[2]).toEqual('c');
-                expect(results[3]).toEqual('b');
-                expect(results[4]).toEqual('b');
+                expect(results[0]).toEqual([ 'b', 2 ]);
+                expect(results[1]).toEqual([ 'c', 4 ]);
+                expect(results[2]).toEqual([ 'd', 5 ]);
+                expect(results.length).toBe(3);
+                done();
+                return;
+            }
+            expect(req.source.name).toEqual("value");
+            results.push(req.result.key);
+            req.result["continue"]();
+        };
+        req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    async.it("should iterate in the reverse order", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
+        var req = theIndex.openKeyCursor(new Nigiri.MultiKey([ new Nigiri.KeySet([ "b", "c", "d", "h" ]),
+                new Nigiri.KeySet([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]) ]), "prev");
+        var results = [];
+
+        req.onsuccess = function() {
+            expect(results.length < 20).toBe(true);
+            if (!req.result) {
+                expect(results[0]).toEqual([ 'd', 5 ]);
+                expect(results[1]).toEqual([ 'd', 5 ]);
+                expect(results[2]).toEqual([ 'c', 4 ]);
+                expect(results[3]).toEqual([ 'b', 2 ]);
+                expect(results[4]).toEqual([ 'b', 2 ]);
                 expect(results.length).toBe(5);
                 done();
                 return;
@@ -112,14 +142,22 @@ describe("KeySetCursor", function() {
 
     async.it("should iterate in the reverse order and ignore duplicates", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
-        var req = theIndex.openKeyCursor(new Nigiri.KeySet([ "b", "c", "d", "h" ]), "prevunique");
+
+        expect("This test does not work on chrome").toBe("https://code.google.com/p/chromium/issues/detail?id=372103");
+        done();
+        return;
+        
+        var req = theIndex.openKeyCursor(new Nigiri.MultiKey([ new Nigiri.KeySet([ "b", "c", "d", "h" ]),
+                new Nigiri.KeySet([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]) ]), "prevunique");
+        
         var results = [];
 
         req.onsuccess = function() {
+            expect(results.length < 20).toBe(true);
             if (!req.result) {
-                expect(results[0]).toEqual('d');
-                expect(results[1]).toEqual('c');
-                expect(results[2]).toEqual('b');
+                expect(results[0]).toEqual([ 'd', 5 ]);
+                expect(results[1]).toEqual([ 'c', 4 ]);
+                expect(results[2]).toEqual([ 'b', 2 ]);
                 expect(results.length).toBe(3);
                 done();
                 return;
@@ -136,13 +174,15 @@ describe("KeySetCursor", function() {
 
     async.it("should skip over keys with advance", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
-        var req = theIndex.openKeyCursor(new Nigiri.KeySet([ "c", "d", "e" ]));
+        var req = theIndex.openKeyCursor(new Nigiri.MultiKey([ new Nigiri.KeySet([ "c", "d", "e" ]),
+                new Nigiri.KeySet([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]) ]));
         var results = [];
 
         req.onsuccess = function() {
+            expect(results.length < 20).toBe(true);
             if (!req.result) {
-                expect(results[0]).toEqual('c');
-                expect(results[1]).toEqual('e');
+                expect(results[0]).toEqual([ 'c', 4 ]);
+                expect(results[1]).toEqual([ 'e', 7 ]);
                 expect(results.length).toBe(2);
                 done();
                 return;
@@ -150,6 +190,7 @@ describe("KeySetCursor", function() {
             expect(req.source.name).toEqual("value");
             results.push(req.result.key);
             req.result.advance(3);
+
         };
         req.onerror = function() {
             expect(true).toBe(false);
@@ -159,13 +200,15 @@ describe("KeySetCursor", function() {
 
     async.it("should skip over keys with advance", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
-        var req = theIndex.openKeyCursor(new Nigiri.KeySet([ "b", "d", "e", "f" ]), "nextunique");
+        var req = theIndex.openKeyCursor(new Nigiri.MultiKey([ new Nigiri.KeySet([ "b", "d", "e", "f" ]),
+                new Nigiri.KeySet([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]) ]), "nextunique");
         var results = [];
 
         req.onsuccess = function() {
+            expect(results.length < 20).toBe(true);
             if (!req.result) {
-                expect(results[0]).toEqual('b');
-                expect(results[1]).toEqual('f');
+                expect(results[0]).toEqual([ 'b', 2 ]);
+                expect(results[1]).toEqual([ 'f', 8 ]);
                 expect(results.length).toBe(2);
                 done();
                 return;

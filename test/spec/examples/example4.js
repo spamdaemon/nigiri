@@ -33,7 +33,7 @@ describe("Example 4", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("delete objects older than 2010", function(done) {
+    async.it("delete objects older than 2010",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
         var BOOKS = setup.db.transaction([ "store" ], "readwrite").objectStore("store");
         var req = BOOKS["delete"](new Nigiri.Query({
             year : Nigiri.KeyRange.upperBound(2010)
@@ -56,6 +56,6 @@ describe("Example 4", function() {
             expect(true).toBe(false);
             done();
         };
-    });
+    }));
 
 });
