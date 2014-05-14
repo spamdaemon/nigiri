@@ -47,7 +47,7 @@ describe("ObjectStore", function() {
     async.beforeEach(setup.setup());
     async.afterEach(setup.teardown());
 
-    async.it("should open a cursor", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
+    async.it("should open a cursor", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.openCursor(new Nigiri.KeySet([ 4, 5, 6.5, 9, 10 ]));
         var count = 0;
@@ -66,7 +66,7 @@ describe("ObjectStore", function() {
         };
     }));
 
-    async.it("should count all entries within a key range", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
+    async.it("should count all entries within a key range", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.count(new Nigiri.KeySet([ 4, 5, 6.5, 9, 10 ]));
@@ -81,7 +81,7 @@ describe("ObjectStore", function() {
         };
     }));
 
-    async.it("get the first value in a sequence",zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
+    async.it("get the first value in a sequence", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.get(new Nigiri.KeySet([ 4.5, 5.5, 6.5, 9, 10 ]));
@@ -96,7 +96,7 @@ describe("ObjectStore", function() {
         };
     }));
 
-    async.it("should return undefined for a value that doesn't exist", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
+    async.it("should return undefined for a value that doesn't exist", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ]).objectStore("store");
         var req = theStore.get(new Nigiri.KeySet([ 4.5, 7.5 ]));
@@ -110,7 +110,7 @@ describe("ObjectStore", function() {
         };
     }));
 
-    async.it("should delete a range of values", zone.inject(["#done","nigiri.Nigiri"], function(done,Nigiri) {
+    async.it("should delete a range of values", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
 
         var theStore = setup.db.transaction([ "store" ], "readwrite").objectStore("store");
         var req = theStore["delete"](new Nigiri.KeySet([ 4, 5, 6.5, 9, 10 ]));
@@ -139,6 +139,24 @@ describe("ObjectStore", function() {
 
         };
         req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    async.it("should get the primary keyrange for the objectstore", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theStore = setup.db.transaction([ "store" ]).objectStore("store");
+        var req = theStore.getKeyRange();
+        req.onsuccess = function(e) {
+            expect(e.currentTarget.result.lower).toBe(0);
+            expect(e.currentTarget.result.upper).toBe(10);
+            expect(e.currentTarget.result.lowerOpen).toBe(false);
+            expect(e.currentTarget.result.upperOpen).toBe(false);
+            done();
+        };
+        req.onerror = function(e) {
+            console.log(e);
             expect(true).toBe(false);
             done();
         };

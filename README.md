@@ -54,9 +54,18 @@ If you find this project useful and want to report a problem, please provide a u
 
 Examples
 --------
-### EnumerableKey
 
-TODO
+### KeyRange
+
+A KeyRange is typically created via in the same way as a IDBKeyRange. It is also
+possible to create a KeyRange from the actual keys in an index or primary keys in an object store.
+
+```var req = AnIndex.getKeyRange();```
+
+```var req = AStore.getKeyRange();```
+
+If the result of this request is either a KeyRange or null if the index or store is empty.
+
 
 ### KeySet
 
@@ -68,6 +77,19 @@ can be used:
 
 The keys must be specified in sorted order.
 
+
+### EnumerableKeyRange
+
+The EnumerableKey is basically a KeyRange, but it can compute the next or
+previous key for any given key. A KeySet is actually a special case of an 
+enumerable key.
+
+```X.openKeyCursor(new Nigiri.EnumerableKeyRange(0,10,
+         function(x) { return x-1;} // predecessor function,
+         function(x) { return x+1; } // successor function
+   ))```
+
+
 ### MultiKey
 
 Use a Multikey to find specific items in an index or store when the key is an array:
@@ -75,7 +97,7 @@ Use a Multikey to find specific items in an index or store when the key is an ar
 
 ```X.openKeyCursor(new Nigiri.MultiKey([ key1, key2, key3, ... ]))```
 
-Each key is itself a key range, but only EnumerableKeyRange instance must be used.
+Each key is itself a key range, but only EnumerableKeyRanges can be used.
 
 ### Query
 

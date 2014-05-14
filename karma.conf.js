@@ -59,7 +59,8 @@ module.exports = function(config) {
         // - IE (only Windows)
         browsers : [ //
         'Chrome' //
-        // , 'Firefox'//
+        //, 
+      //  'Firefox'//
         ],
 
         // If browser does not capture in given timeout [ms], kill it

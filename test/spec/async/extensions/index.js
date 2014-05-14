@@ -22,7 +22,8 @@ describe("Index", function() {
             value : "d"
         }, {
             key : 6,
-            value : "d"
+            value : "d",
+            single : "d"
         }, {
             key : 7,
             value : "e"
@@ -38,6 +39,14 @@ describe("Index", function() {
         } ],
         index : {
             "value" : {
+                unique : false,
+                multiEntry : true
+            },
+            "unused" : {
+                unique : false,
+                multiEntry : true
+            },
+            "single" : {
                 unique : false,
                 multiEntry : true
             }
@@ -215,6 +224,116 @@ describe("Index", function() {
             done();
         };
         req.onerror = function() {
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    async.it("should get the keyrange for the index", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
+        var req = theIndex.getKeyRange();
+        req.onsuccess = function(e) {
+            expect(e.currentTarget.result.lower).toBe('a');
+            expect(e.currentTarget.result.upper).toBe('z');
+            expect(e.currentTarget.result.lowerOpen).toBe(false);
+            expect(e.currentTarget.result.upperOpen).toBe(false);
+            done();
+        };
+        req.onerror = function(e) {
+            console.log(e);
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    async.it("should get the keyrange for the index with a single entry", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("single");
+        var req = theIndex.getKeyRange();
+        req.onsuccess = function(e) {
+            expect(e.currentTarget.result.lower).toBe('d');
+            expect(e.currentTarget.result.upper).toBe('d');
+            expect(e.currentTarget.result.lowerOpen).toBe(false);
+            expect(e.currentTarget.result.upperOpen).toBe(false);
+            done();
+        };
+        req.onerror = function(e) {
+            console.log(e);
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    async.it("should handle an index with no entries", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("unused");
+        var req = theIndex.getKeyRange();
+        req.onsuccess = function(e) {
+            expect(e.currentTarget.result).toBe(null);
+            done();
+        };
+        req.onerror = function(e) {
+            console.log(e);
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    var compareArrays = function(a, b) {
+        if (a.length !== b.length) {
+            return false;
+        }
+        var i, n = a.length;
+        for (i = 0; i < n; ++i) {
+            if (a[i] !== b[i]) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    async.it("should get the keyset for the index", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
+        var req = theIndex.getKeySet();
+        req.onsuccess = function(e) {
+            expect(compareArrays(e.currentTarget.result.keys, [ 'a', 'b', 'c', 'd', 'e', 'f', 'w', 'z' ])).toBe(true);
+            done();
+        };
+        req.onerror = function(e) {
+            console.log(e);
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    async.it("should get the keyset for the index with a single entry", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("single");
+        var req = theIndex.getKeySet();
+        req.onsuccess = function(e) {
+            debugger;
+            expect(compareArrays(e.currentTarget.result.keys, [ 'd' ])).toBe(true);
+            done();
+        };
+        req.onerror = function(e) {
+            console.log(e);
+            expect(true).toBe(false);
+            done();
+        };
+    }));
+
+    async.it("should handle an index with no entries", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+
+        var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("unused");
+        var req = theIndex.getKeySet();
+        req.onsuccess = function(e) {
+            expect(e.currentTarget.result).toBe(null);
+            done();
+        };
+        req.onerror = function(e) {
+            console.log(e);
             expect(true).toBe(false);
             done();
         };

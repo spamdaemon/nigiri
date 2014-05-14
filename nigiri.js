@@ -1670,7 +1670,83 @@ zone("nigiri.extension").protectedFactory("createMultiKeyCursorRequest", [ "Util
                 return createGenericCursorRequest(impl, source, transaction, new MyOptions(options));
             };
 
-        });zone("nigiri.extension").factory("addPutAll", [ "MyRequest" ], function(TheRequest) {
+        });zone("nigiri.extension").factory("getKeyRange", [ "MyKeyRange", "MyRequest" ], function(KeyRange, TheRequest) {
+
+    var getKeyRange = function(loReq, hiReq, transaction) {
+        var request = new TheRequest(null, loReq.source, transaction);
+        var range = {};
+
+        var notifyOnSuccess = function(e) {
+            if (range && range.hasOwnProperty("lo") && range.hasOwnProperty("hi")) {
+                request.__notifyOnSuccess(KeyRange.bound(range.lo, range.hi), e);
+            }
+        };
+
+        loReq.onsuccess = function(e) {
+            if (TheRequest.__invalidResult(loReq)) {
+                request.__notifyOnSuccess(null, e);
+            } else {
+                range.lo = loReq.result.key;
+                notifyOnSuccess(e);
+            }
+        };
+
+        hiReq.onsuccess = function(e) {
+            if (TheRequest.__invalidResult(hiReq)) {
+                request.__notifyOnSuccess(null, e);
+            } else {
+                range.hi = hiReq.result.key;
+                notifyOnSuccess(e);
+            }
+        };
+        loReq.onerror = function(e) {
+            // ensure that only one notification goes out
+            if (range) {
+                range = null;
+                request.__notifyOnError(loReq.error);
+            }
+        };
+        hiReq.onerror = function(e) {
+            if (range) {
+                range = null;
+                request.__notifyOnError(hiReq.error);
+            }
+        };
+
+        request.__setOwnerOf(hiReq);
+        request.__setOwnerOf(loReq);
+
+        return request;
+    };
+
+    return getKeyRange;
+});
+
+zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getKeyRange" ], function(getKeyRange) {
+
+    return function(ObjectStore) {
+
+        ObjectStore.prototype.getKeyRange = function() {
+            var loReq = this.openCursor(null, "next");
+            var hiReq = this.openCursor(null, "prev");
+            return getKeyRange(loReq, hiReq, this.transaction);
+        };
+        return ObjectStore;
+    };
+});
+zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getKeyRange" ], function(getKeyRange) {
+
+    return function(Index) {
+
+        Index.prototype.getKeyRange = function() {
+            var loReq = this.openCursor(null, "next");
+            var hiReq = this.openCursor(null, "prev");
+            return getKeyRange(loReq, hiReq, this.__objectStore.transaction);
+        };
+        return Index;
+    };
+});
+zone("nigiri.extension").factory("addPutAll", [ "MyRequest" ], function(TheRequest) {
 
     var addPutAll = function(store, method, xarray) {
 
@@ -2742,8 +2818,10 @@ zone("nigiri.extension").factory("MyMultiKey", [ "nigiri.cmp", "MyEnumerableKeyR
         var i = 0, n = keys.length;
         var lo = [];
         var hi = [];
-        var rng;
         var key;
+        if (n===0) {
+            throw new Error("Empty MultiKey");
+        }
         for (; i < n; ++i) {
             if (!(keys[i] instanceof MyEnumerableKeyRange)) {
                 throw new Error("Not an emumerable key range " + keys[i]);
@@ -2986,6 +3064,55 @@ zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "updateByCursor" ], fun
         return Index;
     };
 });
+zone("nigiri.extension").factory("getKeySet", [ "MyKeySet", "MyRequest" ], function(KeySet, TheRequest) {
+
+    var getKeySet = function(source, transaction) {
+        var request = new TheRequest(null, source, transaction);
+
+        // get all the keys
+        var req = source.getAllKeys(null,"nextunique");
+
+        req.onsuccess = function(e) {
+            var ks = null;
+            if (req.result.length > 0) {
+                ks = new KeySet(req.result);
+            }
+            request.__notifyOnSuccess(ks);
+        };
+
+        req.onerror = function(e) {
+            request.__notifyOnError(req.error);
+        };
+
+        request.__setOwnerOf(req);
+
+        return request;
+    };
+
+    return getKeySet;
+});
+
+zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getKeySet" ], function(getKeySet) {
+
+    return function(ObjectStore) {
+
+        ObjectStore.prototype.getKeySet = function() {
+            return getKeySet(this, this.transaction);
+        };
+        return ObjectStore;
+    };
+});
+
+zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getKeySet" ], function(getKeySet) {
+
+    return function(Index) {
+
+        Index.prototype.getKeySet = function() {
+            return getKeySet(this, this.transaction);
+        };
+        return Index;
+    };
+});
 zone("nigiri.extension").factory("MyKeyPath", [ "Utils" ], function(Utils) {
 
     var applyKeyPath = function(path, object) {
@@ -3107,19 +3234,20 @@ zone("nigiri.extension").factory("MyKeySet", [ "nigiri.cmp", "MyKeyRange", "MyEn
             };
 
             var TheKeySet = function(keys, verified) {
+                var n = keys.length;
+                if (n === 0) {
+                    throw new Error("Empty KeySet");
+                }
+                keys = keys.slice();
                 if (!verified) {
-                    if (keys.length === 0) {
-                        throw new Error("Keyset is empty");
-                    }
-                    for (var i = 1; i < keys.length; ++i) {
+                    for (var i = 1; i < n; ++i) {
                         if (compareKeys(keys[i - 1], keys[i]) >= 0) {
                             throw new Error("Keyset is not sorted");
                         }
                     }
                 }
-                var n = keys.length;
 
-                this.__keys = Object.freeze(keys.slice(0));
+                this.__keys = Object.freeze(keys);
                 this.__range = TheKeyRange.bound(keys[0], keys[n - 1]);
                 MyEnumerableKeyRange.call(this, keys[0], keys[n - 1]);
             };
