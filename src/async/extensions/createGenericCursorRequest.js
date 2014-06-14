@@ -74,7 +74,7 @@ zone("nigiri.extension")
                             }
 
                             // if we've reached the end of the iteration then we just bail out
-                            if (state.__limit === 0) {
+                            if (state.__limit === 0 || request.__terminate(cursor)) {
                                 request.__readyState = "done";
                                 request.__result = null;
                                 // need to override the result
@@ -91,7 +91,6 @@ zone("nigiri.extension")
                             }
 
                             // the cursor was successfully sync'ed to an element
-
                             if (!request.__filter(cursor)) {
                                 cursor.__impl.advance(1);
                             } else if (state.__skip > 0) {
@@ -187,6 +186,8 @@ zone("nigiri.extension")
                         this.__includedPrimaryKeys = options.includedPrimaryKeys || null;
                         this.__unique = options.unique || false;
 
+                        this.__terminate = options.terminate || Utils.FALSE_FUNCTION;
+
                         this.__filter = options.filter || Utils.TRUE_FUNCTION;
                         if (this.__excludedKeys !== null || this.__excludedPrimaryKeys !== null || this.__includedKeys !== null ||
                                 this.__includedPrimaryKeys !== null) {
@@ -205,7 +206,7 @@ zone("nigiri.extension")
                         // check the iteration state is the default state, in which case we don't need to do any sort of
                         // filtering.
                         if (this.__sync === Utils.TRUE_FUNCTION && this.__iterationState.__skip === 0 && this.__iterationState.__limit < 0 &&
-                                this.__filter === Utils.TRUE_FUNCTION) {
+                                this.__filter === Utils.TRUE_FUNCTION && this.__terminate === Utils.FALSE_FUNCTION) {
                             this.__iterationState = null;
                         }
 

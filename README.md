@@ -122,6 +122,8 @@ Currently, the supported options are
 * `offset`, which can be used to skip an initial number of items that the cursor would normally return.
 * `limit`, which can be used to limit the number of items returned by the cursor.
 * `filter`, which is a boolean `function(cursor)` that can be used to ignore items that a cursor would normally return
+* `terminate`, which is a boolean `function(cursor)` that if it returns truthy
+will terminate the cursor
 * `withValues`, is used to indicate that the cursor needs to retrieve objects from the store instead of just their keys
 * `includedKeys`, is used to limit the result set  or cursor to a list of included keys (must be a sorted array)
 * `includedPrimaryKeys`, is used to limit the result set  or cursor to a list of primary keys  (must be a sorted array)

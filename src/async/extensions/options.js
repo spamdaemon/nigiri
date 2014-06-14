@@ -23,6 +23,12 @@ zone("nigiri.extension").factory("MyOptions", [ "Utils" ], function(Utils) {
         this.isDefault = this.isDefault && this.filter === null;
         this.isStandard = this.isStandard && this.filter === null;
 
+        if (!this.hasOwnProperty("terminate")) {
+            this.terminate = null;
+        }
+        this.isDefault = this.isDefault && this.terminate === null;
+        this.isStandard = this.isStandard && this.terminate === null;
+
         if (!this.hasOwnProperty("limit")) {
             this.limit = -1;
         }
