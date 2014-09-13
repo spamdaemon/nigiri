@@ -1,5 +1,6 @@
-zone("nigiri.extension").protectedFactory("createKeyRange", [ "MyKeyRange", "MyKeySet", "MyEnumerableKeyRange", "MyMultiKey", "nigiri.cmp", "Utils" ],
+zone("nigiri.extension").factory("#createKeyRange", [ "MyKeyRange", "MyKeySet", "MyEnumerableKeyRange", "MyMultiKey", "nigiri.cmp", "Utils" ],
         function(KeyRange, KeySet, EnumerableKeyRange, MultiKey, compareKeys, Utils) {
+            "use strict"
 
             return function(values) {
 

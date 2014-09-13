@@ -1,8 +1,9 @@
 /**
  * This object is used for objects that wrap a native object.
  */
-zone("nigiri").factory("WrapperObject",function() {
-
+zone("nigiri").factory("-WrapperObject",function() {
+    "use strict"
+    
     var setImpl = function(object, impl) {
         if (!impl) {
             throw new Error("No implementation provided");

@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("getKeyRange", [ "MyKeyRange", "MyRequest" ], function(KeyRange, TheRequest) {
+zone("nigiri.extension").factory("-getKeyRange", [ "MyKeyRange", "MyRequest" ], function(KeyRange, TheRequest) {
+    "use strict"
 
     var getKeyRange = function(loReq, hiReq, transaction) {
         var request = new TheRequest(null, loReq.source, transaction);

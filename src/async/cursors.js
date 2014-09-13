@@ -1,4 +1,5 @@
-zone("nigiri").service("cursors", [ "MyRequest", "MyCursor", "MyCursorWithValues" ], function(MyRequest, MyCursor, MyCursorWithValues) {
+zone("nigiri").service("-cursors", [ "MyRequest", "MyCursor", "MyCursorWithValues" ], function(MyRequest, MyCursor, MyCursorWithValues) {
+    "use strict"
     this.createCursorRequest = function(implSource, source, transaction, withValues, args) {
         var req = null;
         var result = null;

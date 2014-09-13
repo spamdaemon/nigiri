@@ -1,13 +1,15 @@
-zone("nigiri").factory("IndexDBProvider", [], function() {
+zone("nigiri").factory("-IndexDBProvider", [], function() {
+    "use strict"
     return window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB;
 });
-zone("nigiri").protectedFactory("cmp", [ "IndexDBProvider" ], function(provider) {
+zone("nigiri").factory("#cmp", [ "IndexDBProvider" ], function(provider) {
+    "use strict"
     return function(a, b) {
         return provider.cmp(a, b);
     };
 });
 
-zone("nigiri").protectedFactory("FACTORY", [ "MyOpenDBRequest", "IndexDBProvider" ], function(REQUEST, INDEXEDDB_PROVIDER) {
+zone("nigiri").factory("#FACTORY", [ "MyOpenDBRequest", "IndexDBProvider" ], function(REQUEST, INDEXEDDB_PROVIDER) {
     "use strict";
 
     if (!INDEXEDDB_PROVIDER) {

@@ -1,4 +1,5 @@
-zone("nigiri.extension").protectedFactory("getKeyByCursor", [ "MyRequest" ], function(TheRequest) {
+zone("nigiri.extension").factory("#getKeyByCursor", [ "MyRequest" ], function(TheRequest) {
+    "use strict"
 
     return function(cursorRequest) {
 

@@ -143,13 +143,15 @@ describe("MultiKey Cursor", function() {
     async.it("should iterate in the reverse order and ignore duplicates", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
 
-        expect("This test does not work on chrome").toBe("https://code.google.com/p/chromium/issues/detail?id=372103");
-        done();
-        return;
-        
+        if (navigator.userAgent.indexOf('Chrome/') >= 0) {
+            expect("This test does not work on chrome").toBe("https://code.google.com/p/chromium/issues/detail?id=372103");
+            done();
+            return;
+        }
+
         var req = theIndex.openKeyCursor(new Nigiri.MultiKey([ new Nigiri.KeySet([ "b", "c", "d", "h" ]),
                 new Nigiri.KeySet([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]) ]), "prevunique");
-        
+
         var results = [];
 
         req.onsuccess = function() {
@@ -198,7 +200,7 @@ describe("MultiKey Cursor", function() {
         };
     }));
 
-    async.it("should skip over keys with advance", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
+    async.it("should skip over keys with advance and nextunique", zone.inject([ "#done", "nigiri.Nigiri" ], function(done, Nigiri) {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("value");
         var req = theIndex.openKeyCursor(new Nigiri.MultiKey([ new Nigiri.KeySet([ "b", "d", "e", "f" ]),
                 new Nigiri.KeySet([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]) ]), "nextunique");

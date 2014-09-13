@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("MyKeyPath", [ "Utils" ], function(Utils) {
+zone("nigiri.extension").factory("-MyKeyPath", [ "Utils" ], function(Utils) {
+    "use strict"
 
     var applyKeyPath = function(path, object) {
         var i, n = path.length;

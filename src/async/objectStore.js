@@ -1,4 +1,5 @@
-zone("nigiri").protectedFactory("MyObjectStore", [ "MyRequest", "MyIndex", "Utils", "cursors" ], function(MyRequest, MyIndex, Utils, cursors) {
+zone("nigiri").factory("#MyObjectStore", [ "MyRequest", "MyIndex", "Utils", "cursors" ], function(MyRequest, MyIndex, Utils, cursors) {
+    "use strict"
 
     var MyObjectStore = function(idbObjectStore, transaction) {
         this.__impl = idbObjectStore;

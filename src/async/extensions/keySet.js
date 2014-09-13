@@ -1,5 +1,6 @@
-zone("nigiri.extension").factory("MyKeySet", [ "nigiri.cmp", "MyKeyRange", "MyEnumerableKeyRange", "Utils" ],
+zone("nigiri.extension").factory("-MyKeySet", [ "nigiri.cmp", "MyKeyRange", "MyEnumerableKeyRange", "Utils" ],
         function(compareKeys, TheKeyRange, MyEnumerableKeyRange, Utils) {
+            "use strict"
 
             var intersectArrays = function(a, b) {
                 var res = [];

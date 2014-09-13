@@ -1,4 +1,5 @@
-zone("nigiri").protectedFactory("MyKeyRange", [ "Utils" ], function(Utils) {
+zone("nigiri").factory("#MyKeyRange", [ "Utils" ], function(Utils) {
+    "use strict"
 
     var MyKeyRange = function(idbKeyRange) {
         this.__impl = idbKeyRange;

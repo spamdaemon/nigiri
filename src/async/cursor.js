@@ -1,4 +1,5 @@
-zone("nigiri").protectedFactory("MyCursor", [ "MyRequest", "Utils" ], function(MyRequest, Utils) {
+zone("nigiri").factory("#MyCursor", [ "MyRequest", "Utils" ], function(MyRequest, Utils) {
+    "use strict"
     var MyCursor = function(idbCursor, source, transaction) {
         this.__impl = idbCursor;
         this.__source = source;

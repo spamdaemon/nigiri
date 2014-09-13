@@ -1,4 +1,5 @@
-zone("nigiri").protectedFactory("MyIndex", [ "Utils" ,"cursors"], function(Utils,cursors) {
+zone("nigiri").factory("#MyIndex", [ "Utils" ,"cursors"], function(Utils,cursors) {
+    "use strict"
 
     var MyIndex = function(idbIndex, objectStore) {
         this.__impl = idbIndex;

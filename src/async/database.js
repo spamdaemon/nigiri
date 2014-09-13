@@ -1,5 +1,6 @@
-zone("nigiri").protectedFactory("MyDatabase", [ "MyDBEventTarget", "MyTransaction", "MyObjectStore", "Utils" ],
+zone("nigiri").factory("#MyDatabase", [ "MyDBEventTarget", "MyTransaction", "MyObjectStore", "Utils" ],
         function(MyDBEventTarget, MyTransaction, MyObjectStore, Utils) {
+            "use strict"
 
             var MyDatabase = function(idbDatabase) {
                 MyDBEventTarget.call(this, idbDatabase, this);

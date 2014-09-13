@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("getAllKeysByCursor", [ "MyRequest", "nigiri.cmp" ], function(TheRequest, compare) {
+zone("nigiri.extension").factory("-getAllKeysByCursor", [ "MyRequest", "nigiri.cmp" ], function(TheRequest, compare) {
+    "use strict"
 
     var getAll = function(cursorRequest) {
 

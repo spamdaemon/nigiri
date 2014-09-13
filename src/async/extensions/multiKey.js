@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("MyMultiKey", [ "nigiri.cmp", "MyEnumerableKeyRange", "Utils" ], function(compareKeys, MyEnumerableKeyRange, Utils) {
+zone("nigiri.extension").factory("-MyMultiKey", [ "nigiri.cmp", "MyEnumerableKeyRange", "Utils" ], function(compareKeys, MyEnumerableKeyRange, Utils) {
+    "use strict"
 
     var TheMultiKey = function(keys, verified) {
 

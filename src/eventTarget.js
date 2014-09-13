@@ -1,4 +1,5 @@
-zone("nigiri").protectedFactory("MyGenericEventTarget", [ "WrapperObject" ], function(WrapperObject) {
+zone("nigiri").factory("#MyGenericEventTarget", [ "WrapperObject" ], function(WrapperObject) {
+    "use strict"
 
     var MyGenericEventListener = function(type, listener, useCapture) {
         this.__type = type;
@@ -66,7 +67,7 @@ zone("nigiri").protectedFactory("MyGenericEventTarget", [ "WrapperObject" ], fun
     return MyGenericEventTarget;
 });
 
-zone("nigiri").protectedFactory("MyDBEventTarget", [ "WrapperObject", "MyGenericEventTarget", "EventWrapper" ],
+zone("nigiri").factory("#MyDBEventTarget", [ "WrapperObject", "MyGenericEventTarget", "EventWrapper" ],
         function(WrapperObject, MyGenericEventTarget, EventWrapper) {
 
             var MyDBEventTarget = function(impl) {
@@ -136,7 +137,7 @@ zone("nigiri").protectedFactory("MyDBEventTarget", [ "WrapperObject", "MyGeneric
             return MyDBEventTarget;
         });
 
-zone("nigiri").protectedFactory("addEventHandlerProperty", function() {
+zone("nigiri").factory("#addEventHandlerProperty", function() {
     return function(prototype, name) {
         Object.defineProperty(prototype, name, {
             get : function() {

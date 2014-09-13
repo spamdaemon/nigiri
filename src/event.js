@@ -1,4 +1,5 @@
-zone("nigiri").protectedFactory("EventWrapper",["WrapperObject"], function(WrapperObject) {
+zone("nigiri").factory("#EventWrapper", [ "WrapperObject" ], function(WrapperObject) {
+    "use strict"
 
     var TheWrapper = function(event) {
         WrapperObject.call(this, event);
@@ -81,7 +82,7 @@ zone("nigiri").protectedFactory("EventWrapper",["WrapperObject"], function(Wrapp
 
 });
 
-zone("nigiri").protectedFactory("createSuccessEvent", function() {
+zone("nigiri").factory("#createSuccessEvent", function() {
 
     var TheEvent = function(target) {
         var event = new CustomEvent("success", {
@@ -162,7 +163,7 @@ zone("nigiri").protectedFactory("createSuccessEvent", function() {
     };
 });
 
-zone("nigiri").protectedFactory("createErrorEvent", function() {
+zone("nigiri").factory("#createErrorEvent", function() {
 
     var TheEvent = function(target) {
         var event = new CustomEvent("error", {

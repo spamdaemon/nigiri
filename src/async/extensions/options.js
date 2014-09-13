@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("MyOptions", [ "Utils" ], function(Utils) {
+zone("nigiri.extension").factory("-MyOptions", [ "Utils" ], function(Utils) {
+    "use strict"
 
     var arrayOrNull = function(array) {
         return array === null || array.length === 0 ? null : array;

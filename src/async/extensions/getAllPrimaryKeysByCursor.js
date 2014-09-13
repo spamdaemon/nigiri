@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("getAllPrimaryKeysByCursor", [ "MyRequest", "nigiri.cmp" ], function(TheRequest, compare) {
+zone("nigiri.extension").factory("-getAllPrimaryKeysByCursor", [ "MyRequest", "nigiri.cmp" ], function(TheRequest, compare) {
+    "use strict"
 
     var objectToArray = function(obj) {
         var res = [];

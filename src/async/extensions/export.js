@@ -1,5 +1,6 @@
 zone("nigiri.extension").interceptor("nigiri.Nigiri", [ "MyKeyPath", "MyMultiKey", "MyKeySet", "MyEnumerableKeyRange", "MyQuery", "MyOptions" ],
         function(MyKeyPath, MyMultiKey, MyKeySet, MyEnumerableKeyRange, MyQuery, MyOptions) {
+            "use strict"
 
             return function(Nigiri) {
                 Nigiri.KeyPath = MyKeyPath;

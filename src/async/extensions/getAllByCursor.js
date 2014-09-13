@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("getAll", [ "MyRequest" ], function(TheRequest) {
+zone("nigiri.extension").factory("-getAll", [ "MyRequest" ], function(TheRequest) {
+    "use strict"
 
     var getAll = function(cursorRequest) {
 

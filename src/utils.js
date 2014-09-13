@@ -1,4 +1,5 @@
-zone("nigiri").protectedService("Utils", function() {
+zone("nigiri").service("#Utils", function() {
+    "use strict"
     var undefinedAsNull = function(x) {
         return typeof x === 'undefined' ? null : x;
     };

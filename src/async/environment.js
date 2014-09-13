@@ -1,4 +1,5 @@
-zone("nigiri").protectedFactory("MyEnvironment",["Utils"], function(Utils) {
+zone("nigiri").factory("#MyEnvironment", [ "Utils" ], function(Utils) {
+    "use strict"
 
     var MyEnvironment = function(idbEnvironment, indexDB) {
         this.__impl = idbEnvironment;
@@ -6,6 +7,6 @@ zone("nigiri").protectedFactory("MyEnvironment",["Utils"], function(Utils) {
     };
 
     // attributes
-    Utils. addConstProperty(MyEnvironment.prototype, "indexedDB");
+    Utils.addConstProperty(MyEnvironment.prototype, "indexedDB");
     return MyEnvironment;
 });

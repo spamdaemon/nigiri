@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("deleteByCursor", [ "MyRequest", "updateByCursor" ], function(TheRequest, updateByCursor) {
+zone("nigiri.extension").factory("-deleteByCursor", [ "MyRequest", "updateByCursor" ], function(TheRequest, updateByCursor) {
+    "use strict"
 
     var updateFN = function() {
         return undefined;

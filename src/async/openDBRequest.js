@@ -1,5 +1,6 @@
-zone("nigiri").protectedFactory("MyOpenDBRequest", [ "EventWrapper", "MyRequest", "MyTransaction", "MyDatabase", "addEventHandlerProperty" ],
+zone("nigiri").factory("#MyOpenDBRequest", [ "EventWrapper", "MyRequest", "MyTransaction", "MyDatabase", "addEventHandlerProperty" ],
         function(EventWrapper, RequestBaseClass, Transaction, Database, addEventHandlerProperty) {
+            "use strict"
 
             var TheEvent = function(e) {
                 EventWrapper.call(this, e);

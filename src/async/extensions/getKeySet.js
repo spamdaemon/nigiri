@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("getKeySet", [ "MyKeySet", "MyRequest" ], function(KeySet, TheRequest) {
+zone("nigiri.extension").factory("-getKeySet", [ "MyKeySet", "MyRequest" ], function(KeySet, TheRequest) {
+    "use strict"
 
     var getKeySet = function(source, transaction) {
         var request = new TheRequest(null, source, transaction);

@@ -1,5 +1,6 @@
-zone("nigiri").protectedFactory("MyRequest", [ "MyDBEventTarget", "addEventHandlerProperty", "createSuccessEvent", "createErrorEvent", "Utils" ],
+zone("nigiri").factory("#MyRequest", [ "MyDBEventTarget", "addEventHandlerProperty", "createSuccessEvent", "createErrorEvent", "Utils" ],
         function(EventTargetImpl, addEventHandlerProperty, createSuccessEvent, createErrorEvent, Utils) {
+            "use strict"
 
             var isValidResult = function(result) {
                 return result !== null && result !== undefined;

@@ -1,8 +1,9 @@
 zone("nigiri.extension")
-        .protectedFactory(
-                "createGenericCursorRequest",
+        .factory(
+                "#createGenericCursorRequest",
                 [ "MyRequest", "MyDBEventTarget", "MyCursor", "MyOptions", "Utils", "nigiri.cmp" ],
                 function(MyRequest, MyDBEventTarget, MyCursor, MyOptions, Utils, compare) {
+                    "use strict"
 
                     var isExcludedKey = function(keys, key) {
                         return keys !== null && Utils.findByBinarySearch(keys, compare, 0, key) >= 0;

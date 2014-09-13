@@ -4,7 +4,6 @@ zone("nigiri.extension").interceptor(
                 "createKeySetCursorRequest", "createGenericCursorRequest", "createMultiKeyCursorRequest", "MyQuery", "Utils" ],
         function(MyRequest, MyKeySet, MyMultiKey, MyKeyRange, MyOptions, countByCursor, getByCursor, getKeyByCursor, deleteByCursor, createKeySetCursorRequest,
                 createGenericCursorRequest, createMultiKeyCursorRequest, MyQuery, Utils) {
-
             "use strict";
 
             var parseKeyArgs = function(array, withQuerySupport, withValues) {

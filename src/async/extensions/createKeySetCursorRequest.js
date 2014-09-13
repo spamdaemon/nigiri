@@ -1,5 +1,6 @@
-zone("nigiri.extension").protectedFactory("createKeySetCursorRequest", [ "nigiri.cmp", "Utils", "createGenericCursorRequest", "MyOptions" ],
+zone("nigiri.extension").factory("#createKeySetCursorRequest", [ "nigiri.cmp", "Utils", "createGenericCursorRequest", "MyOptions" ],
         function(compare, Utils, createGenericCursorRequest, MyOptions) {
+    "use strict"
 
             var prevSort = function(a, b) {
                 return compare(b, a);

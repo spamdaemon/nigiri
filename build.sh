@@ -3,17 +3,15 @@
 LIBS=`find libs -name \*.js`
 SOURCES=`find src -name \*.js`
 
-rm -f nigiri.js.tmp;
-touch nigiri.js.tmp;
-
+rm -f nigiri.js;
+touch nigiri.js;
 for f in $LIBS; do 
-	cat $f >> nigiri.js.tmp;
+	cat $f >> nigiri.js;
 done;
 
 for f in $SOURCES; do 
-	cat $f >> nigiri.js.tmp;
+	cat $f >> nigiri.js;
 done;
 
-
-mv nigiri.js.tmp nigiri.js
-
+# run tests
+karma start --single-run --log-level debug

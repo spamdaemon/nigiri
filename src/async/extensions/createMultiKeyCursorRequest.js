@@ -1,5 +1,6 @@
-zone("nigiri.extension").protectedFactory("createMultiKeyCursorRequest", [ "Utils", "createGenericCursorRequest", "MyOptions", "nigiri.cmp" ],
+zone("nigiri.extension").factory("#createMultiKeyCursorRequest", [ "Utils", "createGenericCursorRequest", "MyOptions", "nigiri.cmp" ],
         function(Utils, createGenericCursorRequest, MyOptions, compareKeys) {
+    "use strict"
 
             var createState = function(multikey, direction) {
                 var state = {

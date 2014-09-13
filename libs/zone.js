@@ -3,12 +3,14 @@
  * 
  */
 (function() {
-    "use strict";
+    'use strict';
 
     if (this.zone) {
-        console.log("Zone already has been defined");
+        console.log('Zone has already been defined');
         return this.zone;
     }
+
+    var VERSION = '1.0';
 
     /** @const */
     var PRIVATE_ACCESS = 2;
@@ -21,6 +23,35 @@
     var MODULES = {};
 
     /**
+     * Given a name, determine the access and type values.
+     * 
+     * @param {!string}
+     *            name
+     * @return {*} an object indicating the protected level and type
+     */
+    var parseName = function(name) {
+        var result = {};
+        switch (name[0]) {
+        case '-':
+            result.access = PRIVATE_ACCESS;
+            result.name = name.substr(1);
+            break;
+        case '+':
+            result.access = PUBLIC_ACCESS;
+            result.name = name.substr(1);
+            break;
+        case '#':
+            result.access = PROTECTED_ACCESS;
+            result.name = name.substr(1);
+            break;
+        default:
+            result.access = PUBLIC_ACCESS;
+            result.name = name;
+        }
+        return result;
+    };
+
+    /**
      * Ensure that there is a minimum number of arguments.
      * 
      * @param {!Array|!Arguments}
@@ -30,7 +61,7 @@
      */
     var ensureMinArgs = function(args, min) {
         if (!(args.length >= min)) {
-            throw new Error("Expected at least " + min + " arguments, but got " + args.length);
+            throw new Error('Expected at least ' + min + ' arguments, but got ' + args.length);
         }
     };
 
@@ -47,7 +78,41 @@
     var checkArguments = function(args, min, max) {
         ensureMinArgs(args, min);
         if (!(args.length <= max)) {
-            throw new Error("Expected at most " + max + " arguments, but got " + args.length);
+            throw new Error('Expected at most ' + max + ' arguments, but got ' + args.length);
+        }
+    };
+
+    /**
+     * Validate the name of an injectable function.
+     * 
+     * @param {!string}
+     *            name a prefix
+     * @param {!string}
+     *            allowed the allowed characters
+     * @param {!string}
+     *            notAllowed the allowed characters
+     * @throws error
+     *             if the string is not a valid injection name
+     */
+    var validateInjectionParameterName = function(name, allowed, notAllowed) {
+        var i, j, n, x = 0;
+        for (i = 0, n = allowed.length; i < n; ++i) {
+            j = name.indexOf(allowed[i]);
+
+            if (j > 0) {
+                throw new Error('Invalid injection parameter ' + name);
+            }
+            if (j === 0) {
+                ++x;
+                if (x > 1) {
+                    throw new Error('Invalid injection parameter ' + name);
+                }
+            }
+        }
+        for (i = 0, n = notAllowed.length; i < n; ++i) {
+            if (name.indexOf(notAllowed[i]) >= 0) {
+                throw new Error('Invalid injection parameter ' + name);
+            }
         }
     };
 
@@ -61,10 +126,10 @@
      * @return {!string} the concatenated name
      */
     var makeFullName = function(prefix, suffix) {
-        if (prefix === "") {
+        if (prefix === '') {
             return suffix;
         }
-        return prefix + "." + suffix;
+        return prefix + '.' + suffix;
     };
 
     /**
@@ -74,7 +139,14 @@
      *            obj an object
      * @return {boolean} true if obj is an array
      */
-    var isArray = Array.isArray;
+    var isArray = Array['isArray'];
+
+    if (!isArray) {
+        // the built-in array isn't supported, so check for length only
+        isArray = function(x) {
+            return x.length >= 0;
+        };
+    }
 
     /**
      * Ensure that a name is a valid name for binding.
@@ -86,7 +158,7 @@
      */
     var ensureValidName = function(name) {
         if (name.length === 0 || name.indexOf('.') >= 0) {
-            throw new Error("Invalid name to bind " + name);
+            throw new Error('Invalid name to bind ' + name);
         }
     };
 
@@ -99,7 +171,7 @@
      */
     var parseFormalParameters = function(f) {
         if (typeof f !== 'function') {
-            throw new Error("Not a function: " + f);
+            throw new Error('Not a function: ' + f);
         }
 
         // find the argument names
@@ -108,7 +180,7 @@
         args = args ? (args[1] ? args[1].trim().split(/\s*,\s*/) : []) : null;
 
         if (args === null) {
-            console.log("Failed to parse the function (perhaps it is too long?) : " + fnString);
+            console.log('Failed to parse the function (perhaps it is too long?) : ' + fnString);
         }
 
         return args;
@@ -121,16 +193,15 @@
      * @final
      * @param {!string}
      *            name the name of the module within the parent
-     * @param {Module|null}
+     * @param {?Module}
      *            parent module
      * @param {Array=}
-     *            imports the imported modules
+     *            opt_imports the imported modules
      */
-    var Module = function(name, parent, imports) {
-        this.__name = name;
+    var Module = function(name, parent, opt_imports) {
         this.__children = {};
         this.__parent = parent;
-        this.__imports = imports;
+        this.__imports = opt_imports;
         this.__sealed = false;
         this.__values = {};
         this.__interceptors = {};
@@ -139,7 +210,7 @@
 
         if (parent) {
             if (parent.__children[name]) {
-                throw new Error("Module " + this.__fullName + " already contains a module " + name);
+                throw new Error('Module ' + this.__fullName + ' already contains a module ' + name);
             }
             this.__fullName = makeFullName(parent.__fullName, name);
             parent.__children[name] = this;
@@ -147,7 +218,7 @@
         MODULES[this.__fullName] = this;
     };
 
-    var ROOT = new Module("", null, []);
+    var ROOT = new Module('', null, []);
 
     /**
      * Get the access that a module has with respect to another module.
@@ -156,7 +227,7 @@
      *            source a module that needs access to the target module
      * @param {Module}
      *            target a module
-     * @return an access level between two modules
+     * @return {!number} an access level between two modules
      */
     var getAccess = function(source, target) {
         if (source === target) {
@@ -180,7 +251,7 @@
      */
     var ensureNotExists = function(m, name) {
         if (m.__values[name]) {
-            throw new Error("Name " + name + " already bound in " + m.__fullName);
+            throw new Error('Name ' + name + ' already bound in ' + m.__fullName);
         }
     };
 
@@ -194,7 +265,7 @@
      */
     var ensureUnsealed = function(m) {
         if (m.__sealed) {
-            throw new Error("Module " + m.__fullName + " is sealed");
+            throw new Error('Module ' + m.__fullName + ' is sealed');
         }
     };
 
@@ -232,7 +303,7 @@
     var checkFormals = function(names, func) {
         var formals = parseFormalParameters(func);
         if (formals !== null && formals.length !== names.length) {
-            throw new Error("Formals and parameter names do not match");
+            throw new Error('Formals and parameter names do not match');
         }
     };
 
@@ -246,7 +317,9 @@
      */
     var FunctionDescriptor = function(args) {
         var n;
-        if (args.length === 1 && Array.isArray(args[0])) {
+        this.isConstructor = false;
+
+        if (args.length === 1 && isArray(args[0])) {
             // using AngularJS notation
             n = args[0].length;
             this.names = args[0].slice(0, n - 1);
@@ -260,10 +333,25 @@
             this.func = args[0];
             this.names = parseFormalParameters(this.func);
             if (this.names === null) {
-                throw new Error("Failed to determine function signature");
+                throw new Error('Failed to determine function signature');
             }
         } else {
-            throw new Error("Invalid function description");
+            throw new Error('Invalid function description');
+        }
+    };
+
+    /**
+     * Validate injection parameters for this descriptor.
+     * 
+     * @param {!string}
+     *            allowed the allowed characters
+     * @param {!string}
+     *            notAllowed the characters that are not allowed
+     */
+    FunctionDescriptor.prototype.validateInjectionParameterNames = function(allowed, notAllowed) {
+        var n = this.names.length, i;
+        for (i = 0; i < n; ++i) {
+            validateInjectionParameterName(this.names[i], allowed, notAllowed);
         }
     };
 
@@ -287,9 +375,8 @@
      * 
      * @constructor
      * @final
-     * @param value
-     *            a value
-     * @return a descriptor
+     * @param {*}
+     *            value a value
      */
     var ValueDescriptor = function(value) {
         this.value = value;
@@ -360,7 +447,7 @@
         if (args instanceof ValueDescriptor || args instanceof FunctionDescriptor) {
             return args;
         }
-        if ((args.length === 1) && (typeof args[0] !== "function") && !(args[0] instanceof FunctionDescriptor)) {
+        if ((args.length === 1) && (typeof args[0] !== 'function') && !(args[0] instanceof FunctionDescriptor)) {
             return createValueDescriptor(args[0]);
         }
         return createFunctionDescriptor(args);
@@ -386,7 +473,7 @@
         this.name = name;
         this.fullName = makeFullName(module.__fullName, name);
         this.descriptor = descriptor;
-        this.applyInterceptors = true;
+        this.resolving = false;
 
         switch (access) {
         case PUBLIC_ACCESS:
@@ -395,7 +482,7 @@
             this.access = access;
             break;
         default:
-            throw new Error("Invalid access " + access);
+            throw new Error('Invalid access ' + access);
         }
     };
 
@@ -404,7 +491,7 @@
      * 
      * @param {!number}
      *            access a access level
-     * @returns {boolean} true if this resolvable has at an access level of 'access'
+     * @return {boolean} true if this resolvable has at an access level of 'access'
      */
     Resolvable.prototype.isAccessible = function(access) {
         return this.access <= access;
@@ -421,16 +508,20 @@
      *            access the access level
      * @param {!Array}
      *            args objects to bind or a function descriptor
-     * @return the module
+     * @return {!Module} the module
      */
     var define = function(module, name, access, args) {
         checkArguments(args, 1, 2);
         ensureValidName(name);
         ensureNotExists(module, name);
         ensureUnsealed(module);
+        var desc, R;
 
-        var desc = guessDescriptor(args);
-        var R = new Resolvable(module, name, access, desc);
+        desc = guessDescriptor(args);
+        if (desc instanceof FunctionDescriptor) {
+            desc.validateInjectionParameterNames("?", "#");
+        }
+        R = new Resolvable(module, name, access, desc);
         module.__values[name] = R;
         return module;
     };
@@ -448,7 +539,7 @@
     var Path = function(path, module) {
         this.module = module;
         this.local = path;
-        this.modulePath = ".";
+        this.modulePath = '.';
 
         var i;
         i = path.lastIndexOf('.');
@@ -470,7 +561,7 @@
      *            access the type access granted to the module's resolvables
      * @param {!Object}
      *            recursionGuard the recursion guard is necessary to detect cyclic dependencies
-     * @return {Resolvable|null} a resolvable object or null if not found
+     * @return {?Resolvable} a resolvable object or null if not found
      */
     var findResolvable = function(name, start, access, recursionGuard) {
         var i, n, local, depends;
@@ -502,7 +593,7 @@
             if (!resolvable) {
                 // not found
                 if (recursionGuard[current.__fullName] === true) {
-                    throw new Error("Cyclic dependency : " + current.__fullName);
+                    throw new Error('Cyclic dependency : ' + current.__fullName);
                 }
 
                 try {
@@ -517,7 +608,7 @@
                     for (i = 0, n = imports.length; i < n && !resolvable; ++i) {
                         depends = findModule(imports[i], false);
                         if (depends === null) {
-                            throw new Error("Invalid dependency : " + imports[i]);
+                            throw new Error('Invalid dependency : ' + imports[i]);
                         }
                         resolvable = findResolvable(local, depends, PUBLIC_ACCESS, recursionGuard);
                     }
@@ -550,7 +641,8 @@
      *             if a cyclic dependency was detected
      */
     var injectFunction = function(module, access, descriptor, allowFreeArguments) {
-        var i, n, isConstructor, freeArgs, args, r, name, value, optional, names, func;
+        var i, n, isConstructor, freeArgs, args, r;
+        var name, value, optional, names, func;
 
         names = descriptor.names;
         func = descriptor.func;
@@ -565,7 +657,7 @@
             name = names[i];
             if (name[0] === '#') {
                 if (!allowFreeArguments) {
-                    throw new Error("Free arguments are not allowed");
+                    throw new Error('Free arguments are not allowed');
                 }
                 freeArgs.push(args.length);
                 args.push(undefined);
@@ -582,14 +674,14 @@
                     try {
                         value = resolveValue(r);
                     } catch (error) {
-                        console.log("Injection failed: " + name);
+                        console.log('Injection failed: ' + name);
                         throw error;
                     }
                     args.push(value);
                 } else if (optional) {
                     args.push(undefined);
                 } else {
-                    console.log("Injectable not found: " + name);
+                    console.log('Injectable not found: ' + name);
                     return null;
                 }
             }
@@ -607,7 +699,7 @@
 
             if (isConstructor) {
                 // found this on <a
-                // href="http://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible">
+                // href='http://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible'>
                 return new FN();
             } else {
                 return FN();
@@ -627,11 +719,12 @@
     var resolveValue = function(R) {
         var fn, interceptors, interceptor, interceptFN, value, i, n;
 
-        if (R.hasOwnProperty("value")) {
-            return R.value;
+        if (R.hasOwnProperty('value')) {
+            return R['value'];
         }
+
         if (R.resolving === true) {
-            throw new Error("Cyclic dependency detected with " + R.fullName);
+            throw new Error('Cyclic dependency detected with ' + R.fullName);
         }
 
         R.resolving = true;
@@ -643,21 +736,21 @@
                 try {
                     fn = injectFunction(R.module, PRIVATE_ACCESS, R.descriptor, false);
                 } catch (error) {
-                    console.log("Failed to resolve " + R.fullName);
+                    console.log('Failed to resolve ' + R.fullName);
                     throw error;
                 }
                 if (fn === null) {
-                    console.log("Failed to resolve " + R.fullName);
-                    throw new Error("Failed to resolve " + R.fullName);
+                    console.log('Failed to resolve ' + R.fullName);
+                    throw new Error('Failed to resolve ' + R.fullName);
                 }
             } finally {
-                delete R.resolving;
+                R.resolving = false;
             }
 
             try {
                 value = fn();
             } catch (error) {
-                throw new Error("Failed to resolve " + R.fullName + "\n" + error.toString());
+                throw new Error('Failed to resolve ' + R.fullName + '\n' + error.toString());
             }
         }
 
@@ -669,20 +762,20 @@
             try {
                 interceptFN = injectFunction(interceptor.module, PRIVATE_ACCESS, interceptor.descriptor, false);
             } catch (error) {
-                console.log("Interceptor for " + R.fullName + " failed");
+                console.log('Interceptor for ' + R.fullName + ' failed');
                 throw error;
             }
             if (interceptFN === null) {
-                throw new Error("Failed to resolve interceptor for " + R.name);
+                throw new Error('Failed to resolve interceptor for ' + R.name);
             }
             value = interceptFN()(value);
         }
 
-        R.value = value;
+        R['value'] = value;
         // the descriptor isn't needed anymore, so clean up
         delete R.descriptor;
 
-        return R.value;
+        return R['value'];
     };
 
     /**
@@ -690,14 +783,15 @@
      * 
      * @expose
      * @param {...}
-     *            args a function desctiptor
-     * @returns
+     *            var_args a function descriptor
+     * @return {Function} a function
      */
-    Module.prototype.inject = function(args) {
+    Module.prototype.inject = function(var_args) {
         var descriptor = createFunctionDescriptor(arguments);
+        descriptor.validateInjectionParameterNames("#?", "");
         var fn = injectFunction(this, PUBLIC_ACCESS, descriptor, true);
         if (fn === null) {
-            throw new Error("Failed to create injected function");
+            throw new Error('Failed to create injected function');
         }
         return fn;
     };
@@ -712,8 +806,8 @@
      */
     Module.prototype.create = function(name) {
         var m;
-        if (name.length === 0 || name.indexOf(".") >= 0) {
-            throw new Error("Invalid name " + name);
+        if (name.length === 0 || name.indexOf('.') >= 0) {
+            throw new Error('Invalid name ' + name);
         }
         m = this.__children[name];
         if (!m) {
@@ -727,17 +821,17 @@
      * 
      * @expose
      * @param {Array=}
-     *            imports direct imports of this module
+     *            opt_imports direct imports of this module
      */
-    Module.prototype.configure = function(imports) {
-        if (!isArray(imports)) {
-            throw new Error("Imports are not an array");
+    Module.prototype.configure = function(opt_imports) {
+        if (!isArray(opt_imports)) {
+            throw new Error('Imports are not an array');
         }
         if (this.__imports) {
-            throw new Error("Module has already been configured " + this.__fullName);
+            throw new Error('Module has already been configured ' + this.__fullName);
         }
         ensureUnsealed(this);
-        this.__imports = imports.slice();
+        this.__imports = opt_imports.slice();
         return this;
     };
 
@@ -753,154 +847,54 @@
      */
     Module.prototype.get = function(name) {
         var R = findResolvable(name, this, PUBLIC_ACCESS, {});
-        if (!R) {
-            throw new Error("Not found " + name);
+        if (R) {
+            return resolveValue(R);
         }
-        return resolveValue(R);
+        throw new Error('Not found ' + name);
     };
 
     /**
-     * Define a private object which is only accessible to functions defined in this module.
+     * Define a factory object. The name starts with modifier characters, such as, '#', '+', '-' then the value will
+     * accessible as protected, public, or private respectively. If no access modier is provided, then access default to
+     * public access.
      * 
      * @expose
      * @param {!string}
      *            name the name of the object to be bound
      * @param {...*}
-     *            args
+     *            var_args
      * @return {!Module} this module
      */
-    Module.prototype.definePrivate = function(name, args) {
-        ensureMinArgs(arguments, 2);
-        return define(this, name, PRIVATE_ACCESS, Array.prototype.slice.call(arguments, 1));
-    };
-
-    /**
-     * Define a private object which is only accessible to functions defined in this module or nested modules.
-     * 
-     * @expose
-     * @param {!string}
-     *            name the name of the object to be bound
-     * @param {...*}
-     *            args
-     * @return {!Module} this module
-     */
-    Module.prototype.defineProtected = function(name, args) {
-        ensureMinArgs(arguments, 2);
-        return define(this, name, PROTECTED_ACCESS, Array.prototype.slice.call(arguments, 1));
-    };
-
-    /**
-     * Associate a value with a public name. If the arguments can be interpreted as a factory function, then the
-     * function will be instantiated and its result used as the exported value.
-     * 
-     * @expose
-     * @param {!string}
-     *            name the name of the object to be bound
-     * @param {...*}
-     *            args
-     * @return {!Module} this module
-     */
-    Module.prototype["export"] = function(name, args) {
-        ensureMinArgs(arguments, 2);
-        return define(this, name, PUBLIC_ACCESS, Array.prototype.slice.call(arguments, 1));
-    };
-
-    /**
-     * Define a module-private factory object.
-     * 
-     * @expose
-     * @param {!string}
-     *            name the name of the object to be bound
-     * @param {...*}
-     *            args
-     * @return {!Module} this module
-     */
-    Module.prototype.factory = function(name, args) {
+    Module.prototype.factory = function(name, var_args) {
         ensureMinArgs(arguments, 2);
         var desc = createFunctionDescriptor(Array.prototype.slice.call(arguments, 1));
-        return define(this, name, PRIVATE_ACCESS, [ desc ]);
+        var parsedName = parseName(name);
+        return define(this, parsedName.name, parsedName.access, [ desc ]);
     };
 
     /**
-     * Define a module-private factory object.
+     * Define a service. The name starts with modifier characters, such as, '#', '+', '-' then the value will accessible
+     * as protected, public, or private respectively. If no access modier is provided, then access default to public
+     * access.
      * 
      * @expose
      * @param {!string}
      *            name the name of the object to be bound
      * @param {...*}
-     *            args
+     *            var_args
      * @return {!Module} this module
      */
-    Module.prototype.protectedFactory = function(name, args) {
-        ensureMinArgs(arguments, 2);
-        var desc = createFunctionDescriptor(Array.prototype.slice.call(arguments, 1));
-        return define(this, name, PROTECTED_ACCESS, [ desc ]);
-    };
-
-    /**
-     * Define a module-private service.
-     * 
-     * @expose
-     * @param {!string}
-     *            name the name of the object to be bound
-     * @param {...*}
-     *            args
-     * @return {!Module} this module
-     */
-    Module.prototype.service = function(name, args) {
+    Module.prototype.service = function(name, var_args) {
         ensureMinArgs(arguments, 2);
         var desc = createConstructorDescriptor(Array.prototype.slice.call(arguments, 1));
-        return define(this, name, PRIVATE_ACCESS, [ desc ]);
+        var parsedName = parseName(name);
+        return define(this, parsedName.name, parsedName.access, [ desc ]);
     };
 
     /**
-     * Define a module-private service.
-     * 
-     * @expose
-     * @param {!string}
-     *            name the name of the object to be bound
-     * @param {...*}
-     *            args
-     * @return {!Module} this module
-     */
-    Module.prototype.protectedService = function(name, args) {
-        ensureMinArgs(arguments, 2);
-        var desc = createConstructorDescriptor(Array.prototype.slice.call(arguments, 1));
-        return define(this, name, PROTECTED_ACCESS, [ desc ]);
-    };
-
-    /**
-     * Define an interceptor for values, factories, and services. The interceptor is invoked when the named object in
-     * this module is resolved for the first time. The interception function can be injected and must return a function
-     * that can be used to inject.
-     * 
-     * @expose
-     * @param {!string}
-     *            name the name of the object to be intercepted
-     * @param {...}
-     *            args an injectable function that produce a function that takes a value and returns a value
-     * @return {!Module} this module
-     */
-    Module.prototype.interceptor = function(name, args) {
-
-        // find the module in which we want
-        var path = new Path(name, this);
-        var module = path.module;
-        if (module === null) {
-            module = findModule(path.modulePath, true);
-        }
-        var descriptor = createFunctionDescriptor(Array.prototype.slice.call(arguments, 1));
-        var interceptor = new Interceptor(this, descriptor);
-        var list = module.__interceptors[path.local];
-        if (!list) {
-            module.__interceptors[path.local] = list = [];
-        }
-        list.push(interceptor);
-        return this;
-    };
-
-    /**
-     * Define a module-private value.
+     * Define a value. The name starts with modifier characters, such as, '#', '+', '-' then the value will accessible
+     * as protected, public, or private respectively. If no access modier is provided, then access default to public
+     * access.
      * 
      * @expose
      * @param {!string}
@@ -912,11 +906,16 @@
     Module.prototype.value = function(name, value) {
         ensureMinArgs(arguments, 2);
         var desc = createValueDescriptor(value);
-        return define(this, name, PRIVATE_ACCESS, [ desc ]);
+        var parsedName = parseName(name);
+        return define(this, parsedName.name, parsedName.access, [ desc ]);
     };
 
     /**
-     * Define a module-private value.
+     * Define a constant value. The name starts with modifier characters, such as, '#', '+', '-' then the value will
+     * accessible as protected, public, or private respectively. If no access modier is provided, then access default to
+     * public access.
+     * <p>
+     * This method will freeze and seal the provided constant value.
      * 
      * @expose
      * @param {!string}
@@ -925,58 +924,51 @@
      *            value a value
      * @return {!Module} this module
      */
-    Module.prototype.protectedValue = function(name, value) {
+    Module.prototype.constant = function(name, value) {
         ensureMinArgs(arguments, 2);
+        if (value !== null) {
+            var type = typeof value;
+            // only objects can be frozen
+            if (type === 'object' || type === 'function') {
+                Object.freeze(value);
+                Object.seal(value);
+            }
+        }
         var desc = createValueDescriptor(value);
-        return define(this, name, PROTECTED_ACCESS, [ desc ]);
+        var parsedName = parseName(name);
+        return define(this, parsedName.name, parsedName.access, [ desc ]);
     };
 
     /**
-     * Export a public factory object.
+     * Define an interceptor for values, factories, and services. The interceptor is invoked when the named object in
+     * this module is resolved for the first time. The interception function can be injected and must return a function
+     * that can be used to inject.
      * 
      * @expose
      * @param {!string}
-     *            name the name of the object to be bound
-     * @param {...*}
-     *            args
+     *            name the name of the object to be intercepted
+     * @param {...}
+     *            var_args an injectable function that produce a function that takes a value and returns a value
      * @return {!Module} this module
      */
-    Module.prototype.exportFactory = function(name, args) {
-        ensureMinArgs(arguments, 2);
-        var desc = createFunctionDescriptor(Array.prototype.slice.call(arguments, 1));
-        return define(this, name, PUBLIC_ACCESS, [ desc ]);
-    };
+    Module.prototype.interceptor = function(name, var_args) {
 
-    /**
-     * Export public a service object which is defined by a construction function.
-     * 
-     * @expose
-     * @param {!string}
-     *            name the name of the object to be bound
-     * @param {...*}
-     *            args
-     * @return {!Module} this module
-     */
-    Module.prototype.exportService = function(name, args) {
-        ensureMinArgs(arguments, 2);
-        var desc = createConstructorDescriptor(Array.prototype.slice.call(arguments, 1));
-        return define(this, name, PUBLIC_ACCESS, [ desc ]);
-    };
-
-    /**
-     * Export a public value.
-     * 
-     * @expose
-     * @param {!string}
-     *            name the name of the object to be bound
-     * @param {*}
-     *            value a value
-     * @return {!Module} this module
-     */
-    Module.prototype.exportValue = function(name, value) {
-        ensureMinArgs(arguments, 2);
-        var desc = createValueDescriptor(value);
-        return define(this, name, PUBLIC_ACCESS, [ desc ]);
+        // find the module in which we want
+        var path = new Path(name, this);
+        var module = path.module;
+        if (module === null) {
+            module = findModule(path.modulePath, true);
+        }
+        var args = Array.prototype.slice.call(arguments, 1);
+        var descriptor = createFunctionDescriptor(args);
+        descriptor.validateInjectionParameterNames("?", "#");
+        var interceptor = new Interceptor(this, descriptor);
+        var list = module.__interceptors[path.local];
+        if (!list) {
+            module.__interceptors[path.local] = list = [];
+        }
+        list.push(interceptor);
+        return this;
     };
 
     /**
@@ -984,20 +976,20 @@
      * 
      * @expose
      * @param {!string=}
-     *            optPath the optional path
+     *            opt_path the optional path
      * @param {boolean=}
-     *            optPreventImplicitModule true to prevent the module from being created implicitly
+     *            opt_preventImplicitModule true to prevent the module from being created implicitly
      * @return {!Module}
      */
-    this.zone = function(optPath, optPreventImplicitModule) {
-        if (!optPath) {
+    this.zone = function(opt_path, opt_preventImplicitModule) {
+        if (!opt_path) {
             return ROOT;
         }
-        var m = findModule(optPath, !optPreventImplicitModule);
+        var m = findModule(opt_path, !opt_preventImplicitModule);
         if (m) {
             return m;
         }
-        throw new Error("Module not found " + optPath);
+        throw new Error('Module not found ' + opt_path);
     };
 
     /**
@@ -1005,10 +997,10 @@
      * 
      * @expose
      * @param {...*}
-     *            args
+     *            var_args
      * @return {FunctionDescriptor} a function descriptor
      */
-    this.zone.asFunction = function(args) {
+    this.zone.asFunction = function(var_args) {
         checkArguments(arguments, 1, 2);
         return createFunctionDescriptor(arguments);
     };
@@ -1019,10 +1011,10 @@
      * 
      * @expose
      * @param {...*}
-     *            args
+     *            var_args
      * @return {FunctionDescriptor} a function descriptor
      */
-    this.zone.asConstructor = function(args) {
+    this.zone.asConstructor = function(var_args) {
         checkArguments(arguments, 1, 2);
         return createConstructorDescriptor(arguments);
     };
@@ -1047,18 +1039,18 @@
      * 
      * @expose
      * @param {!string=}
-     *            name the name of optional module which to use for injection
+     *            opt_name the name of optional module which to use for injection
      * @param {...}
-     *            varargs the arguments
+     *            var_args the arguments
      * @return {function()} a function
      */
-    this.zone.inject = function(name, varargs) {
+    this.zone.inject = function(opt_name, var_args) {
         checkArguments(arguments, 1, 3);
 
-        var module = "";
+        var module = '';
         var args = arguments;
         if (typeof arguments[0] === 'string') {
-            module = name;
+            module = opt_name;
             args = Array.prototype.slice.call(args, 1);
         }
 
@@ -1084,7 +1076,7 @@
 
         var path = new Path(name, ROOT);
         if (path.module === null) {
-            throw new Error("Not found " + name);
+            throw new Error('Not found ' + name);
         }
         return path.module.get(path.local);
     };
@@ -1095,8 +1087,18 @@
      * @expose
      */
     this.zone.reset = function() {
-        ROOT = new Module("", null, []);
+        ROOT = new Module('', null, []);
         MODULES = {};
+    };
+
+    /**
+     * Get the version of zone.
+     * 
+     * @expose
+     * @return {!string} the current version of zone
+     */
+    this.zone.version = function() {
+        return VERSION;
     };
 
     return this.zone;

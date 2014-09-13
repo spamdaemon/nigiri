@@ -1,4 +1,5 @@
-zone("nigiri").protectedFactory("MyEnumerableKeyRange", [ "Utils", "nigiri.cmp", "MyKeyRange" ], function(Utils, compareKeys, MyKeyRange) {
+zone("nigiri").factory("#MyEnumerableKeyRange", [ "Utils", "nigiri.cmp", "MyKeyRange" ], function(Utils, compareKeys, MyKeyRange) {
+    "use strict"
 
     var unimplemented = function() {
         throw new Error("Unimplemented operation");

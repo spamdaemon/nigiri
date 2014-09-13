@@ -1,4 +1,5 @@
-zone("nigiri.extension").factory("countByCursor", [ "MyRequest" ], function(TheRequest) {
+zone("nigiri.extension").factory("-countByCursor", [ "MyRequest" ], function(TheRequest) {
+    "use strict"
 
     return function(cursorRequest) {
         var request = new TheRequest(null, cursorRequest.source, cursorRequest.transaction);
