@@ -1914,7 +1914,7 @@ zone("nigiri.extension")
                             if (keys[cursor.primaryKey] === true) {
                                 return false;
                             }
-                            keys[cursor.key] = true;
+                            keys[cursor.primaryKey] = true;
                             return filter(cursor);
                         };
 
