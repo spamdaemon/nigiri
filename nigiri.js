@@ -2,7 +2,7 @@
  * A private object that maintains and creates modules.
  * 
  */
-(function() {
+(function(console) {
     'use strict';
 
     if (this.zone) {
@@ -204,7 +204,6 @@
         this.__imports = opt_imports;
         this.__sealed = false;
         this.__values = {};
-        this.__interceptors = {};
 
         this.__fullName = name;
 
@@ -214,6 +213,9 @@
             }
             this.__fullName = makeFullName(parent.__fullName, name);
             parent.__children[name] = this;
+        } else {
+            // interceptors only on the ROOT module
+            this.__interceptors = [];
         }
         MODULES[this.__fullName] = this;
     };
@@ -362,11 +364,14 @@
      * @final
      * @param {!Module}
      *            module the module in which the interceptor will resolve
+     * @param {!function(!string,!string):boolean}
+     *            selector a boolean function taking two string arguments
      * @param {!FunctionDescriptor}
      *            descriptor the function used to create the interceptor
      */
-    var Interceptor = function(module, descriptor) {
+    var Interceptor = function(module, selector, descriptor) {
         this.module = module;
+        this.selector = selector;
         this.descriptor = descriptor;
     };
 
@@ -427,7 +432,6 @@
      * @return {FunctionDescriptor} a function descriptor
      */
     var createConstructorDescriptor = function(args) {
-
         // get the descriptor for the actual function; later we will use
         // that function and replace it with a wrapper function which will
         // instantiate the original function
@@ -754,21 +758,23 @@
             }
         }
 
-        interceptors = R.module.__interceptors[R.name] || [];
+        interceptors = ROOT.__interceptors || [];
 
         // apply all interceptors, which is in arbitrary order
         for (i = 0, n = interceptors.length; i < n; ++i) {
             interceptor = interceptors[i];
-            try {
-                interceptFN = injectFunction(interceptor.module, PRIVATE_ACCESS, interceptor.descriptor, false);
-            } catch (error) {
-                console.log('Interceptor for ' + R.fullName + ' failed');
-                throw error;
+            if (interceptor.selector(R.module.__fullName, R.name)) {
+                try {
+                    interceptFN = injectFunction(interceptor.module, PRIVATE_ACCESS, interceptor.descriptor, false);
+                } catch (error) {
+                    console.log('Interceptor for ' + R.fullName + ' failed');
+                    throw error;
+                }
+                if (interceptFN === null) {
+                    throw new Error('Failed to resolve interceptor for ' + R.name);
+                }
+                value = interceptFN()(value, R.module.__fullName, R.name);
             }
-            if (interceptFN === null) {
-                throw new Error('Failed to resolve interceptor for ' + R.name);
-            }
-            value = interceptFN()(value);
         }
 
         R['value'] = value;
@@ -943,31 +949,47 @@
      * Define an interceptor for values, factories, and services. The interceptor is invoked when the named object in
      * this module is resolved for the first time. The interception function can be injected and must return a function
      * that can be used to inject.
+     * <p>
+     * If the selector is a function then it must be a function of the form. Function interceptors are set globally and
+     * are not just associated with this this module!!!
+     * 
+     * <pre>
+     * function(FullModuleName,LocalValueName) { return true or false; }
+     * </pre>
+     * 
+     * and must not perform any zone functions. If any zone function, e.g module lookup, is performed, then the result
+     * is UNDEFINED and subject to change.
      * 
      * @expose
-     * @param {!string}
-     *            name the name of the object to be intercepted
+     * @param {!string|function(!string,!string):boolean}
+     *            selector the name of the object to be intercepted
      * @param {...}
      *            var_args an injectable function that produce a function that takes a value and returns a value
      * @return {!Module} this module
      */
-    Module.prototype.interceptor = function(name, var_args) {
-
-        // find the module in which we want
-        var path = new Path(name, this);
-        var module = path.module;
-        if (module === null) {
-            module = findModule(path.modulePath, true);
+    Module.prototype.interceptor = function(selector, var_args) {
+        var module = this;
+        if (typeof selector === 'string') {
+            // find the module in which we want
+            var path = new Path(selector, this);
+            module = path.module;
+            if (module === null) {
+                module = findModule(path.modulePath, true);
+            }
+            // selector is just a local name
+            selector = function(m, l) {
+                return module.__fullName === m && l === path.local;
+            };
         }
+        if (!(typeof selector === 'function')) {
+            throw Error("Invalid interceptor " + interceptWhat);
+        }
+
         var args = Array.prototype.slice.call(arguments, 1);
         var descriptor = createFunctionDescriptor(args);
         descriptor.validateInjectionParameterNames("?", "#");
-        var interceptor = new Interceptor(this, descriptor);
-        var list = module.__interceptors[path.local];
-        if (!list) {
-            module.__interceptors[path.local] = list = [];
-        }
-        list.push(interceptor);
+        // register the interceptor with the root module
+        ROOT.__interceptors.push(new Interceptor(this, selector, descriptor));
         return this;
     };
 
@@ -1102,7 +1124,10 @@
     };
 
     return this.zone;
-}).call(this);
+}).call(this, console || {
+    log : function() {
+    }
+});
 zone("nigiri").factory("#MyKeyRange", [ "Utils" ], function(Utils) {
     "use strict"
 
@@ -1764,7 +1789,7 @@ zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getKeyRange" ], functi
         return Index;
     };
 });
-zone("nigiri.extension").factory("-addPutAll", [ "MyRequest" ], function(TheRequest) {
+zone("nigiri.extension").factory("-addPutAll", [ "console", "MyRequest" ], function(console, TheRequest) {
     "use strict"
 
     var addPutAll = function(store, method, xarray) {
@@ -2971,7 +2996,7 @@ zone("nigiri.extension").factory("-countByCursor", [ "MyRequest" ], function(The
     };
 
 });
-zone("nigiri.extension").factory("-updateByCursor", [ "MyRequest" ], function(TheRequest) {
+zone("nigiri.extension").factory("-updateByCursor", [ "console","MyRequest" ], function(console,TheRequest) {
     "use strict"
 
     /**
@@ -3348,8 +3373,8 @@ zone("nigiri.extension").factory("-MyKeySet", [ "nigiri.cmp", "MyKeyRange", "MyE
 
             return TheKeySet;
         });
-zone("nigiri.extension").factory("-MyQuery", [ "Utils", "MyRequest", "nigiri.cmp", "MyOptions", "MyKeyPath", "MyKeyRange", "MyKeySet", "createKeyRange" ],
-        function(Utils, TheRequest, compareKeys, Options, KeyPath, MyKeyRange, KeySet, createKeyRange) {
+zone("nigiri.extension").factory("-MyQuery", ["console", "Utils", "MyRequest", "nigiri.cmp", "MyOptions", "MyKeyPath", "MyKeyRange", "MyKeySet", "createKeyRange" ],
+        function(console,Utils, TheRequest, compareKeys, Options, KeyPath, MyKeyRange, KeySet, createKeyRange) {
             "use strict"
 
             var createIndex = function(obj, name) {
@@ -4077,7 +4102,7 @@ zone("nigiri").factory("#createErrorEvent", function() {
         return new TheEvent(target);
     };
 });
-zone("nigiri").service("#Utils", function() {
+zone("nigiri").service("#Utils", ['console'] ,function(console) {
     "use strict"
     var undefinedAsNull = function(x) {
         return typeof x === 'undefined' ? null : x;
@@ -4459,4 +4484,23 @@ zone("nigiri").factory("#addEventHandlerProperty", function() {
         });
     };
 });
+zone().value("window", window);
+
+zone().factory("console", [ 'window', function(window) {
+    "use strict"
+
+    if (window.console && window.console.log) {
+        return window.console;
+    }
+
+    return {
+        /**
+         * We only need the log function.
+         * 
+         * @expose
+         */
+        log : function() {
+        }
+    };
+} ]);
 "use strict";

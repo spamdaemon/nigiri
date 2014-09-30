@@ -313,7 +313,6 @@ describe("Index", function() {
         var theIndex = setup.db.transaction([ "store" ]).objectStore("store").index("single");
         var req = theIndex.getKeySet();
         req.onsuccess = function(e) {
-            debugger;
             expect(compareArrays(e.currentTarget.result.keys, [ 'd' ])).toBe(true);
             done();
         };

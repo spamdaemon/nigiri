@@ -1,5 +1,5 @@
-zone("nigiri.extension").factory("-MyQuery", [ "Utils", "MyRequest", "nigiri.cmp", "MyOptions", "MyKeyPath", "MyKeyRange", "MyKeySet", "createKeyRange" ],
-        function(Utils, TheRequest, compareKeys, Options, KeyPath, MyKeyRange, KeySet, createKeyRange) {
+zone("nigiri.extension").factory("-MyQuery", ["console", "Utils", "MyRequest", "nigiri.cmp", "MyOptions", "MyKeyPath", "MyKeyRange", "MyKeySet", "createKeyRange" ],
+        function(console,Utils, TheRequest, compareKeys, Options, KeyPath, MyKeyRange, KeySet, createKeyRange) {
             "use strict"
 
             var createIndex = function(obj, name) {

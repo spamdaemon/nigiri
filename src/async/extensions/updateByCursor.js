@@ -1,4 +1,4 @@
-zone("nigiri.extension").factory("-updateByCursor", [ "MyRequest" ], function(TheRequest) {
+zone("nigiri.extension").factory("-updateByCursor", [ "console","MyRequest" ], function(console,TheRequest) {
     "use strict"
 
     /**

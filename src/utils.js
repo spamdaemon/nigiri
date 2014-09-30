@@ -1,4 +1,4 @@
-zone("nigiri").service("#Utils", function() {
+zone("nigiri").service("#Utils", ['console'] ,function(console) {
     "use strict"
     var undefinedAsNull = function(x) {
         return typeof x === 'undefined' ? null : x;

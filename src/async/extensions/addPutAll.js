@@ -1,4 +1,4 @@
-zone("nigiri.extension").factory("-addPutAll", [ "MyRequest" ], function(TheRequest) {
+zone("nigiri.extension").factory("-addPutAll", [ "console", "MyRequest" ], function(console, TheRequest) {
     "use strict"
 
     var addPutAll = function(store, method, xarray) {
