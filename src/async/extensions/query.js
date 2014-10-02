@@ -1,4 +1,4 @@
-zone("nigiri.extension").factory("-MyQuery", ["console", "Utils", "MyRequest", "nigiri.cmp", "MyOptions", "MyKeyPath", "MyKeyRange", "MyKeySet", "createKeyRange" ],
+zone("nigiri.extension").factory("-MyQuery", ["$console", "Utils", "MyRequest", "nigiri.cmp", "MyOptions", "MyKeyPath", "MyKeyRange", "MyKeySet", "createKeyRange" ],
         function(console,Utils, TheRequest, compareKeys, Options, KeyPath, MyKeyRange, KeySet, createKeyRange) {
             "use strict"
 

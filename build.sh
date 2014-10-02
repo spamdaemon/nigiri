@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LIBS=`find libs -name \*.js`
+LIBS="libs/zone.min.js libs/zone-modules.min.js"
 SOURCES=`find src -name \*.js`
 
 rm -f nigiri.js;

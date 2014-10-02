@@ -8,8 +8,10 @@ module.exports = function(config) {
         frameworks : [ 'jasmine' ],
 
         // list of files / patterns to load in the browser
-        files : [ "libs/zone.js",
-
+        files : [ //
+        "libs/zone.min.js", // zone MUST be first
+        "libs/zone-modules.min.js", // zone helper
+        //
         'src/**/*.js',
         //
         'test/lib/**/*.js',//
@@ -58,7 +60,7 @@ module.exports = function(config) {
         // - PhantomJS
         // - IE (only Windows)
         browsers : [ //
-        'Chrome' ,'Firefox'//
+        'Chrome', 'Firefox'//
         ],
 
         // If browser does not capture in given timeout [ms], kill it

@@ -1,6 +1,6 @@
-zone("nigiri").factory("-IndexDBProvider", [], function() {
+zone("nigiri").factory("-IndexDBProvider", [ "$indexedDB" ], function(db) {
     "use strict"
-    return window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB;
+    return db;
 });
 zone("nigiri").factory("#cmp", [ "IndexDBProvider" ], function(provider) {
     "use strict"
@@ -9,11 +9,11 @@ zone("nigiri").factory("#cmp", [ "IndexDBProvider" ], function(provider) {
     };
 });
 
-zone("nigiri").factory("#FACTORY", [ "MyOpenDBRequest", "IndexDBProvider" ], function(REQUEST, INDEXEDDB_PROVIDER) {
+zone("nigiri").factory("#FACTORY", [ "MyOpenDBRequest", "IndexDBProvider", "$indexedDB" ], function(REQUEST, INDEXEDDB_PROVIDER,nativeDB) {
     "use strict";
 
     if (!INDEXEDDB_PROVIDER) {
-        INDEXEDDB_PROVIDER = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB;
+        INDEXEDDB_PROVIDER = nativeDB;
     }
 
     if (!INDEXEDDB_PROVIDER) {
