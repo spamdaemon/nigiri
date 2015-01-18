@@ -80,8 +80,9 @@ zone("nigiri.extension").interceptor(
                 return result;
             };
 
-            return function(Cursors) {
-
+            return function(CursorsFN) {
+                var Cursors = CursorsFN();
+                
                 Cursors.createCursorRequest = function(implSource, source, transaction, withValues, args) {
 
                     var req = null;

@@ -34,14 +34,14 @@ zone("nigiri.extension").factory("-getAll", [ "MyRequest" ], function(TheRequest
 zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getAll" ], function(getAll) {
 
     return function(ObjectStore) {
-        ObjectStore.prototype.getAll = getAll;
-        return ObjectStore;
+        ObjectStore().prototype.getAll = getAll;
+        return ObjectStore();
     };
 });
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getAll" ], function(getAll) {
 
     return function(Index) {
-        Index.prototype.getAll = getAll;
-        return Index;
+        Index().prototype.getAll = getAll;
+        return Index();
     };
 });

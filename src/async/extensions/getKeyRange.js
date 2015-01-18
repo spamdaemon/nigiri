@@ -55,23 +55,23 @@ zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getKeyRange" ], 
 
     return function(ObjectStore) {
 
-        ObjectStore.prototype.getKeyRange = function() {
+        ObjectStore().prototype.getKeyRange = function() {
             var loReq = this.openCursor(null, "next");
             var hiReq = this.openCursor(null, "prev");
             return getKeyRange(loReq, hiReq, this.transaction);
         };
-        return ObjectStore;
+        return ObjectStore();
     };
 });
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getKeyRange" ], function(getKeyRange) {
 
     return function(Index) {
 
-        Index.prototype.getKeyRange = function() {
+        Index().prototype.getKeyRange = function() {
             var loReq = this.openCursor(null, "next");
             var hiReq = this.openCursor(null, "prev");
             return getKeyRange(loReq, hiReq, this.__objectStore.transaction);
         };
-        return Index;
+        return Index();
     };
 });

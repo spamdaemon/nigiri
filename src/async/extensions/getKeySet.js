@@ -31,10 +31,10 @@ zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getKeySet" ], fu
 
     return function(ObjectStore) {
 
-        ObjectStore.prototype.getKeySet = function() {
+        ObjectStore().prototype.getKeySet = function() {
             return getKeySet(this, this.transaction);
         };
-        return ObjectStore;
+        return ObjectStore();
     };
 });
 
@@ -42,9 +42,9 @@ zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getKeySet" ], function
 
     return function(Index) {
 
-        Index.prototype.getKeySet = function() {
+        Index().prototype.getKeySet = function() {
             return getKeySet(this, this.transaction);
         };
-        return Index;
+        return Index();
     };
 });

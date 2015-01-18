@@ -1,18 +1,21 @@
-'use strict';(function(s){function C(){function a(a,d){return D(b,a,d)}var b=new e("",null,[]);a.asFunction=function(a){p(arguments,2);return q(arguments)};a.asConstructor=function(a){p(arguments,2);return E(arguments)};a.asValue=function(a){p(arguments,1);return t(a)};a.inject=function(a,d){p(arguments,3);var h="",f=arguments;"string"===typeof arguments[0]&&(h=a,f=Array.prototype.slice.call(f,1));var k=q(f),m=null;return function(){null===m&&(m=D(b,h,!0).inject(k));return m.apply(this,arguments)}};
-a.get=function(a){p(arguments,1);var d=new z(b,a,b);if(null===d.b)throw Error("Not found "+a);return d.b.get(d.j)};a.reset=function(){b=new e("",null,[])};a.makeZone=function(){return C()};a.version=function(){return"1.0"};return a}function F(a){var b,c,d,h,f,k;if(a.t)return a.value;if(!0===a.n)throw Error("Cyclic dependency detected with "+a.g);a.n=!0;if(a.f instanceof u)h=a.f.value;else{try{try{b=A(a.b,2,a.f,!1,!0)}catch(m){throw s.log("Failed to resolve "+a.g),m;}if(null===b)throw s.log("Failed to resolve "+
-a.g),Error("Failed to resolve "+a.g);}finally{a.n=!1}try{h=b()}catch(g){throw Error("Failed to resolve "+a.g+"\n"+g.toString());}}b=a.b.c.p||[];f=0;for(k=b.length;f<k;++f)if(c=b[f],c.v(a.b.a,a.name)){try{d=A(c.b,2,c.f,!1,!0)}catch(l){throw s.log("Interceptor for "+a.g+" failed"),l;}if(null===d)throw Error("Failed to resolve interceptor for "+a.name);h=d()(h,a.b.a,a.name)}a.value=h;a.t=!0;delete a.f;return h}function A(a,b,c,d,h){var f,k,m,g,l,e,q,n,p,r;p=c.e;r=c.h;m=c.isConstructor;g=[];l=[null];
-f=0;for(k=p.length;f<k;++f)if(e=p[f],"#"===e[0]){if(!d)throw Error("Free arguments are not allowed");g.push(l.length);l.push(void 0)}else if(n=!1,"?"===e[0]&&(n=!0,e=e.substr(1)),c=B(e,a,b,{})){try{q=F(c)}catch(t){throw s.log("Injection failed: "+e),t;}l.push(q)}else if(n)l.push(void 0);else return s.log("Injectable not found: "+e),null;k=g.length;return function(){for(f=0;f<k;++f)l[g[f]]=arguments[f];h||(l[0]=this);var a=Function.prototype.bind.apply(r,l);return m?new a:a()}}function B(a,b,c,d){var h,
-f,k,e,g,l;k=new z(b.c,a,b);a=k.b;k=k.j;if(a!==b){g=b;if(g===a)g=2;else{for(;g&&g!==a;)g=g.r;g=null===g?0:1}c=Math.min(c,g)}d=d||{};for(g=null;!g&&a;){a.s=!0;if((g=a.l[k])&&g.u(c))break;g=null;if(!g){if(!0===d[a.a])throw Error("Cyclic dependency : "+a.a);try{for(d[a.a]=!0,l=a.i||[],a.i=l,h=0,f=l.length;h<f&&!g;++h){e=v(b.c,l[h],!1);if(null===e)throw Error("Invalid dependency : "+l[h]);g=B(k,e,0,d)}}finally{d[a.a]=!1}c=1;a=a.r}}return g}function z(a,b,c){this.b=c;this.j=b;this.m=".";c=b.lastIndexOf(".");
-0<=c&&(this.m=b.substring(0,c),this.b=v(a,this.m,!1),this.j=b.substr(c+1))}function w(a,b,c,d){p(d,2);if(0===b.length||0<=b.indexOf("."))throw Error("Invalid name to bind "+b);if(a.l[b])throw Error("Name "+b+" already bound in "+a.a);G(a);d=d instanceof u||d instanceof n?d:1!==d.length||"function"===typeof d[0]||d[0]instanceof n?q(d):t(d[0]);d instanceof n&&d.o("?","#");c=new H(a,b,c,d);a.l[b]=c;return a}function H(a,b,c,d){this.t=!1;this.value=null;this.b=a;this.name=b;this.g=I(a.a,b);this.f=d;this.n=
-!1;switch(c){case 0:case 2:case 1:this.d=c;break;default:throw Error("Invalid access "+c);}}function E(a){a=q(a);a.isConstructor=!0;return a}function q(a){return a instanceof n?a:1===a.length&&a[0]instanceof n?a[0]:new n(a)}function t(a){return a instanceof u?a:new u(a)}function u(a){this.value=a}function L(a,b,c){this.b=a;this.v=b;this.f=c}function n(a){var b;this.isConstructor=!1;if(1===a.length&&x(a[0]))b=a[0].length,this.e=a[0].slice(0,b-1),this.h=a[0][b-1],J(this.e,this.h);else if(2===a.length)this.e=
-a[0].slice(),this.h=a[1],J(this.e,this.h);else if("function"===typeof a[0]){if(this.h=a[0],this.e=K(this.h),null===this.e)throw Error("Failed to determine function signature");}else throw Error("Invalid function description"+JSON.stringify(a));}function J(a,b){var c=K(b);if(null!==c&&c.length!==a.length)throw Error("Formals and parameter names do not match");}function D(a,b,c){if(!b)return a;if(a=v(a,b,!c))return a;throw Error("Module not found "+b);}function v(a,b,c){var d=a.q[b],d=d||null;if(!d&&
-c)for(b=b.split(/\./),d=a,a=0,c=b.length;a<c;++a)d=d.create(b[a],null);return d}function G(a){if(a.s)throw Error("Module "+a.a+" is sealed");}function e(a,b,c){this.k={};this.r=b;this.i=c;this.s=!1;this.l={};this.a=a;if(b){if(b.k[a])throw Error("Module "+this.a+" already contains a module "+a);this.a=I(b.a,a);this.c=b.c;b.k[a]=this}else this.p=[],this.c=this,this.q={};this.c.q[this.a]=this}function I(a,b){return""===a?b:a+"."+b}function K(a){if("function"!==typeof a)throw Error("Not a function: "+
-a);a=a.toString();var b=a.match(/^\s*function\s*(?:\w*\s*)?\(([\s\S]*?)\)/),b=b?b[1]?b[1].trim().split(/\s*,\s*/):[]:null;null===b&&s.log("Failed to parse the function (perhaps it is too long?) : "+a);return b}function p(a,b){r(a,1);if(!(a.length<=b))throw Error("Expected at most "+b+" arguments, but got "+a.length);}function r(a,b){if(!(a.length>=b))throw Error("Expected at least "+b+" arguments, but got "+a.length);}function y(a){var b={};switch(a[0]){case "-":b.d=2;b.name=a.substr(1);break;case "+":b.d=
-0;b.name=a.substr(1);break;case "#":b.d=1;b.name=a.substr(1);break;default:b.d=0,b.name=a}return b}if(this.zone)return s.log("Zone has already been defined"),this.zone;var x=Array.isArray;x||(x=function(a){return 0<=a.length});n.prototype.o=function(a,b){var c=this.e.length,d;for(d=0;d<c;++d){for(var h=this.e[d],f=void 0,e=void 0,m=void 0,g=0,f=0,m=a.length;f<m;++f){e=h.indexOf(a[f]);if(0<e)throw Error("Invalid injection parameter "+h);if(0===e&&(++g,1<g))throw Error("Invalid injection parameter "+
-h);}f=0;for(m=b.length;f<m;++f)if(0<=h.indexOf(b[f]))throw Error("Invalid injection parameter "+h);}};H.prototype.u=function(a){return this.d<=a};e.prototype.inject=function(a){var b=q(arguments);b.o("#?","");b=A(this,0,b,!0,!1);if(null===b)throw Error("Failed to create injected function");return b};e.prototype.create=function(a){var b;if(0===a.length||0<=a.indexOf("."))throw Error("Invalid name "+a);(b=this.k[a])||(b=new e(a,this,null));return b};e.prototype.configure=function(a){if(!x(a))throw Error("Imports are not an array");
-if(this.i)throw Error("Module has already been configured "+this.a);G(this);this.i=a.slice();return this};e.prototype.get=function(a){var b=B(a,this,0,{});if(b)return F(b);throw Error("Not found "+a);};e.prototype.factory=function(a,b){r(arguments,2);var c=q(Array.prototype.slice.call(arguments,1)),d=y(a);return w(this,d.name,d.d,[c])};e.prototype.service=function(a,b){r(arguments,2);var c=E(Array.prototype.slice.call(arguments,1)),d=y(a);return w(this,d.name,d.d,[c])};e.prototype.value=function(a,
-b){r(arguments,2);var c=y(a);return w(this,c.name,c.d,[t(b)])};e.prototype.constant=function(a,b){r(arguments,2);if(null!==b){var c=typeof b;if("object"===c||"function"===c)Object.freeze(b),Object.seal(b)}c=y(a);return w(this,c.name,c.d,[t(b)])};e.prototype.interceptor=function(a,b){var c=this;if("string"===typeof a){var d=new z(this.c,a,this),c=d.b;null===c&&(c=v(this.c,d.m,!0));a=function(a,b){return c.a===a&&b===d.j}}if("function"!==typeof a)throw Error("Invalid interceptor "+a);var e=q(Array.prototype.slice.call(arguments,
-1));e.o("?","#");this.c.p.push(new L(this,a,e));return this};return this.zone=C()}).call(this,console||{log:function(){}});
+'use strict';(function(r,J){function D(a){function b(b,d){return l(a,b,d)}b.asFunction=function(a){u(arguments,2);return q(arguments)};b.asConstructor=function(a){u(arguments,2);return K(arguments)};b.asValue=function(a){u(arguments,1);return w(a)};b.inject=function(b,d){u(arguments,3);var e="",f=arguments;"string"===typeof arguments[0]&&(e=b,f=Array.prototype.slice.call(f,1));var k=q(f),h=null;return function(){null===h&&(h=l(a,e,!0).inject(k));return h.apply(this,arguments)}};b.get=function(b){u(arguments,
+1);var d=new s(a,b,a);if(null===d.c)throw Error("Not found "+b);return d.c.get(d.local)};b.factory=function(c,d){var e=m(c),f=new s(a,e.name,a),k=l(a,f.h),h=Array.prototype.slice.call(arguments);h[0]=e.prefix+f.local;g.prototype.factory.apply(k,h);return b};b.service=function(c,d){var e=m(c),f=new s(a,e.name,a),k=l(a,f.h),h=Array.prototype.slice.call(arguments);h[0]=e.prefix+f.local;g.prototype.service.apply(k,h);return b};b.value=function(c,d){var e=m(c),f=new s(a,e.name,a);l(a,f.h).value(e.prefix+
+f.local,d);return b};b.constant=function(c,d){var e=m(c),f=new s(a,e.name,a);l(a,f.h).constant(e.prefix+f.local,d);return b};b.makeZone=function(){return D(new g("",null,[]))};b.copyZone=function(){return D(L("",a,null))};b.names=function(b){var d,e,f,k=[],h;d="function"===typeof b?b:b instanceof RegExp?function(a){return b.test(a)}:function(){return!0};for(e in a.m)for(f in a.m[e].d)h=a.m[e].d[f],0===h.e&&d(h.f)&&k.push(h.f);k.sort();return k};b.version=function(){return"1.0"};a.d.$$zone=new v(a,
+"$$zone",0,w(b));return b}function E(a){var b,c,d;if(!(a instanceof v)){d={};for(c in a)d[c]=E(a[c]);return d}if(a.r)return a.value;if(!0===a.n)throw Error("Cyclic dependency detected with "+a.f);a.n=!0;try{b=F(a,a.c.b.l,a.c.b.l.length-1),d=b()}catch(e){throw Error("Failed to resolve "+a.f+"\n"+e.toString());}finally{a.n=!1}a.value=d;a.r=!0;return d}function F(a,b,c){var d,e;if(0>c)return R(a);e=b[c];return e.u(a.c.a,a.name)?M(function(){var f,k;try{f=l(a.c.b,e.name,!0),k=G(f,2,e.i,!1,!0)}catch(h){throw r.log("Interceptor for "+
+a.f+" failed"),h;}if(null===k)throw Error("Failed to resolve interceptor for "+a.name);d=F(a,b,c-1);return k()(d,a.c.a,a.name)}):F(a,b,c-1)}function R(a){return a.i instanceof z?function(){return a.i.value}:M(function(){var b;try{b=G(a.c,2,a.i,!1,!0)}catch(c){throw r.log("Failed to resolve "+a.f),c;}if(null===b)throw r.log("Failed to resolve "+a.f),Error("Failed to resolve "+a.f);return b()})}function M(a){var b,c=0;return function(){if(0===c)try{b=a(),c=1}catch(d){throw b=d,c=-1,d;}else if(0>c)throw b;
+return b}}function G(a,b,c,d,e){var f,k,h,y,n,g,p,H,m,l;m=c.names;l=c.j;h=c.isConstructor;y=[];n=[null];f=0;for(k=m.length;f<k;++f)if(g=m[f],"#"===g[0]){if(!d)throw Error("Free arguments are not allowed");y.push(n.length);n.push(J)}else if(H=!1,"?"===g[0]&&(H=!0,g=g.substr(1)),c=I(g,a,b,!0,{})){try{p=E(c)}catch(q){throw r.log("Injection failed: "+g),q;}n.push(p)}else if(H)n.push(J);else return r.log("Injectable not found: "+g),null;k=y.length;return function(){for(f=0;f<k;++f)n[y[f]]=arguments[f];
+e||(n[0]=this);var a=Function.prototype.bind.apply(l,n);return h?new a:a()}}function I(a,b,c,d,e){var f,k,h,g,n,m,p,l;n=new s(b.b,a,b);a=n.c;n=n.local;if(a!==b){g=b;if(g===a)g=2;else{for(;g&&g!==a;)g=g.p;g=null===g?0:1}c=Math.min(c,g)}p=null;if("*"===n)for(h in p={},a.d)g=a.d[h],g.s(c)&&(p[h]=g);for(e=e||{};!p&&a;){a.q=!0;if((p=a.d[n])&&p.s(c))break;p=null;if(!d)break;if(!p){if(!0===e[a.a])throw Error("Cyclic dependency : "+a.a);try{for(e[a.a]=!0,l=a.g||[],a.g=l,f=0,k=l.length;f<k&&!p;++f){m=A(b.b,
+l[f],!1);if(null===m)throw Error("Invalid dependency : "+l[f]);p=I(n,m,0,!1,e)}}finally{e[a.a]=!1}c=1;a=a.p}}return p}function s(a,b,c){this.c=c;this.local=b;this.h=".";c=b.lastIndexOf(".");0<=c&&(this.h=b.substring(0,c),this.local=b.substr(c+1),this.c=A(a,this.h,!1))}function B(a,b,c,d){u(d,2);if(0===b.length||0<=b.indexOf("."))throw Error("Invalid name to bind "+b);if(a.d[b])throw Error("Name "+b+" already bound in "+a.a);N(a);d=d instanceof z||d instanceof t?d:1!==d.length||"function"===typeof d[0]||
+d[0]instanceof t?q(d):w(d[0]);d instanceof t&&d.o("?","#");c=new v(a,b,c,d);a.d[b]=c;return a}function v(a,b,c,d){this.r=!1;this.value=null;this.c=a;this.name=b;this.f=O(a.a,b);this.i=d;this.n=!1;switch(c){case 0:case 2:case 1:this.e=c;break;default:throw Error("Invalid access "+c);}}function K(a){a=q(a);a.isConstructor=!0;return a}function q(a){return a instanceof t?a:1===a.length&&a[0]instanceof t?a[0]:new t(a)}function w(a){return a instanceof z?a:new z(a)}function z(a){this.value=a}function S(a,
+b,c){this.name=a;this.u=b;this.i=c}function t(a){var b;this.isConstructor=!1;if(1===a.length&&C(a[0]))b=a[0].length,this.names=a[0].slice(0,b-1),this.j=a[0][b-1],P(this.names,this.j);else if(2===a.length)this.names=a[0].slice(),this.j=a[1],P(this.names,this.j);else if("function"===typeof a[0]){if(this.j=a[0],this.names=Q(this.j),null===this.names)throw Error("Failed to determine function signature");}else throw Error("Invalid function description"+JSON.stringify(a));}function P(a,b){var c=Q(b);if(null!==
+c&&c.length!==a.length)throw Error("Formals and parameter names do not match : "+JSON.stringify(a));}function l(a,b,c){if(!b)return a;if(a=A(a,b,!c))return a;throw Error("Module not found "+b);}function A(a,b,c){var d=a.m[b],d=d||null;if(!d&&c&&(d=a,"."!==b))for(a=b.split(/\./),b=0,c=a.length;b<c;++b)d=d.create(a[b],null);return d}function N(a){if(a.q)throw Error("Module "+a.a+" is sealed");}function L(a,b,c){a=new g(a,c,null);b.g&&(a.g=b.g.slice());var d,e;a.b===a&&(a.l=b.l.slice());for(e in b.d)a.d[e]=
+b.d[e].t(a);for(d in b.k)L(d,b.k[d],a);return a}function g(a,b,c){this.k={};this.p=b;this.g=c;this.q=!1;this.d={};this.a=a;if(b){if(b.k[a])throw Error("Module "+this.a+" already contains a module "+a);this.a=O(b.a,a);this.b=b.b;b.k[a]=this}else this.l=[],this.b=this,this.m={};this.b.m[this.a]=this}function O(a,b){return""===a?b:a+"."+b}function Q(a){if("function"!==typeof a)throw Error("Not a function: "+a);a=a.toString();var b=a.match(/^\s*function\s*(?:\w*\s*)?\(([\s\S]*?)\)/),b=b?b[1]?b[1].trim().split(/\s*,\s*/):
+[]:null;null===b&&r.log("Failed to parse the function (perhaps it is too long?) : "+a);return b}function u(a,b){x(a,1);if(!(a.length<=b))throw Error("Expected at most "+b+" arguments, but got "+a.length);}function x(a,b){if(!(a.length>=b))throw Error("Expected at least "+b+" arguments, but got "+a.length);}function m(a){var b={};switch(a[0]){case "-":b.e=2;b.name=a.substr(1);b.prefix="-";break;case "+":b.e=0;b.name=a.substr(1);b.prefix="";break;case "#":b.e=1;b.name=a.substr(1);b.prefix="#";break;
+default:b.e=0,b.name=a,b.prefix=""}return b}if(this.zone)return r.log("Zone has already been defined"),this.zone;var C=Array.isArray;C||(C=function(a){return 0<=a.length});t.prototype.o=function(a,b){var c=this.names.length,d;for(d=0;d<c;++d){for(var e=this.names[d],f=void 0,g=void 0,h=void 0,l=0,f=0,h=a.length;f<h;++f){g=e.indexOf(a[f]);if(0<g)throw Error("Invalid injection parameter "+e);if(0===g&&(++l,1<l))throw Error("Invalid injection parameter "+e);}f=0;for(h=b.length;f<h;++f)if(0<=e.indexOf(b[f]))throw Error("Invalid injection parameter "+
+e);}};v.prototype.t=function(a){return new v(a,this.name,this.e,this.i)};v.prototype.s=function(a){return this.e<=a};g.prototype.inject=function(a){var b=q(arguments);b.o("#?","");b=G(this,0,b,!0,!1);if(null===b)throw Error("Failed to create injected function");return b};g.prototype.create=function(a){var b;if(0===a.length||0<=a.indexOf("."))throw Error("Invalid name "+a);(b=this.k[a])||(b=new g(a,this,null));return b};g.prototype.configure=function(a){if(!C(a))throw Error("Imports are not an array");
+if(this.g)throw Error("Module has already been configured "+this.a);N(this);this.g=a.slice();return this};g.prototype.get=function(a){var b=I(a,this,0,!0,{});if(b)return E(b);throw Error("Not found "+a);};g.prototype.factory=function(a,b){x(arguments,2);var c=q(Array.prototype.slice.call(arguments,1)),d=m(a);return B(this,d.name,d.e,[c])};g.prototype.service=function(a,b){x(arguments,2);var c=K(Array.prototype.slice.call(arguments,1)),d=m(a);return B(this,d.name,d.e,[c])};g.prototype.value=function(a,
+b){x(arguments,2);var c=m(a);return B(this,c.name,c.e,[w(b)])};g.prototype.constant=function(a,b){x(arguments,2);if(null!==b){var c=typeof b;if("object"===c||"function"===c)Object.freeze(b),Object.seal(b)}c=m(a);return B(this,c.name,c.e,[w(b)])};g.prototype.interceptor=function(a,b){var c=this;if("string"===typeof a){var d=new s(this.b,a,this),c=d.c;null===c&&(c=A(this.b,d.h,!0));a=function(a,b){return c.a===a&&b===d.local}}if("function"!==typeof a)throw Error("Invalid interceptor "+a);var e=q(Array.prototype.slice.call(arguments,
+1));e.o("?","#");this.b.l.push(new S(this.a,a,e));return this};return this.zone=D(new g("",null,[]))}).call(this,console||{log:function(){}});
 'use strict';zone().factory("$document",["$window"],function(a){return a.document});zone().factory("$indexedDB",["$window"],function(a){return a.indexedDB||a.webkitIndexedDB||a.mozIndexedDB});zone().factory("$XMLHttpRequest",["$window"],function(a){return a.XMLHttpRequest});zone().value("$window",window);zone().factory("$console",["$window"],function(a){function c(){}a=a.console||{};for(var b,d={},e=["memory"],f="assert clear count debug dir dirxml error exception group groupCollapsed groupEnd info log markTimeline profile profiles profileEnd show table time timeEnd timeline timelineEnd timeStamp trace warn".split(" ");b=e.pop();)a[b]=a[b]||d;for(;b=f.pop();)a[b]=a[b]||c;return a});zone().factory("$Worker",["$window"],function(a){return a.a});
 zone("nigiri").factory("#MyKeyRange", [ "Utils" ], function(Utils) {
     "use strict"
@@ -655,24 +658,24 @@ zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getKeyRange" ], 
 
     return function(ObjectStore) {
 
-        ObjectStore.prototype.getKeyRange = function() {
+        ObjectStore().prototype.getKeyRange = function() {
             var loReq = this.openCursor(null, "next");
             var hiReq = this.openCursor(null, "prev");
             return getKeyRange(loReq, hiReq, this.transaction);
         };
-        return ObjectStore;
+        return ObjectStore();
     };
 });
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getKeyRange" ], function(getKeyRange) {
 
     return function(Index) {
 
-        Index.prototype.getKeyRange = function() {
+        Index().prototype.getKeyRange = function() {
             var loReq = this.openCursor(null, "next");
             var hiReq = this.openCursor(null, "prev");
             return getKeyRange(loReq, hiReq, this.__objectStore.transaction);
         };
-        return Index;
+        return Index();
     };
 });
 zone("nigiri.extension").factory("-addPutAll", [ "$console", "MyRequest" ], function(console, TheRequest) {
@@ -769,15 +772,15 @@ zone("nigiri.extension").factory("-addPutAll", [ "$console", "MyRequest" ], func
 zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "addPutAll" ], function(addPutAll) {
 
     return function(ObjectStore) {
-        ObjectStore.prototype.addAll = function() {
+        ObjectStore().prototype.addAll = function() {
             return addPutAll(this, "add", arguments);
         };
 
-        ObjectStore.prototype.putAll = function() {
+        ObjectStore().prototype.putAll = function() {
             return addPutAll(this, "put", arguments);
         };
 
-        return ObjectStore;
+        return ObjectStore();
     };
 });
 zone("nigiri.extension").factory("#getByCursor", [ "MyRequest" ], function(TheRequest) {
@@ -1224,7 +1227,8 @@ zone("nigiri.extension").interceptor("nigiri.Nigiri", [ "MyKeyPath", "MyMultiKey
         function(MyKeyPath, MyMultiKey, MyKeySet, MyEnumerableKeyRange, MyQuery, MyOptions) {
             "use strict"
 
-            return function(Nigiri) {
+            return function(NigiriFN) {
+                var Nigiri = NigiriFN();
                 Nigiri.KeyPath = MyKeyPath;
                 Nigiri.KeySet = MyKeySet;
                 Nigiri.MultiKey = MyMultiKey;
@@ -1302,21 +1306,21 @@ zone("nigiri.extension").factory("-getAllPrimaryKeysByCursor", [ "MyRequest", "n
 
 zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getAllPrimaryKeysByCursor" ], function(getAll) {
     return function(ObjectStore) {
-        ObjectStore.prototype.getAllPrimaryKeys = function() {
+        ObjectStore().prototype.getAllPrimaryKeys = function() {
             var req = this.openCursor.apply(this, arguments);
             return getAll(req);
         };
-        return ObjectStore;
+        return ObjectStore();
     };
 });
 
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getAllPrimaryKeysByCursor" ], function(getAll) {
     return function(Index) {
-        Index.prototype.getAllPrimaryKeys = function() {
+        Index().prototype.getAllPrimaryKeys = function() {
             var req = this.openCursor.apply(this, arguments);
             return getAll(req);
         };
-        return Index;
+        return Index();
     };
 });
 zone("nigiri.extension").factory("-getAll", [ "MyRequest" ], function(TheRequest) {
@@ -1355,15 +1359,15 @@ zone("nigiri.extension").factory("-getAll", [ "MyRequest" ], function(TheRequest
 zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getAll" ], function(getAll) {
 
     return function(ObjectStore) {
-        ObjectStore.prototype.getAll = getAll;
-        return ObjectStore;
+        ObjectStore().prototype.getAll = getAll;
+        return ObjectStore();
     };
 });
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getAll" ], function(getAll) {
 
     return function(Index) {
-        Index.prototype.getAll = getAll;
-        return Index;
+        Index().prototype.getAll = getAll;
+        return Index();
     };
 });
 zone("nigiri.extension").interceptor(
@@ -1448,8 +1452,9 @@ zone("nigiri.extension").interceptor(
                 return result;
             };
 
-            return function(Cursors) {
-
+            return function(CursorsFN) {
+                var Cursors = CursorsFN();
+                
                 Cursors.createCursorRequest = function(implSource, source, transaction, withValues, args) {
 
                     var req = null;
@@ -1632,8 +1637,9 @@ zone("nigiri.extension").interceptor(
         });
 
 zone("nigiri.extension").interceptor("nigiri.MyKeyRange", [ "nigiri.cmp" ], function(compareKeys) {
-    return function(KeyRange) {
-
+    return function(KeyRangeFN) {
+        var KeyRange = KeyRangeFN();
+        
         Object.defineProperty(KeyRange.prototype, "range", {
             get : function() {
                 return this;
@@ -1741,21 +1747,21 @@ zone("nigiri.extension").factory("-getAllKeysByCursor", [ "MyRequest", "nigiri.c
 zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getAllKeysByCursor" ], function(getAllKeysByCursor) {
 
     return function(ObjectStore) {
-        ObjectStore.prototype.getAllKeys = function() {
+        ObjectStore().prototype.getAllKeys = function() {
             var req = this.openCursor.apply(this, arguments);
             return getAllKeysByCursor(req);
         };
-        return ObjectStore;
+        return ObjectStore();
     };
 });
 
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getAllKeysByCursor" ], function(getAllKeysByCursor) {
     return function(Index) {
-        Index.prototype.getAllKeys = function() {
+        Index().prototype.getAllKeys = function() {
             var req = this.openKeyCursor.apply(this, arguments);
             return getAllKeysByCursor(req);
         };
-        return Index;
+        return Index();
     };
 });
 zone("nigiri.extension").factory("-MyMultiKey", [ "nigiri.cmp", "MyEnumerableKeyRange", "Utils" ], function(compareKeys, MyEnumerableKeyRange, Utils) {
@@ -1997,8 +2003,8 @@ zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "updateByCursor" 
     };
 
     return function(ObjectStore) {
-        ObjectStore.prototype.update = update;
-        return ObjectStore;
+        ObjectStore().prototype.update = update;
+        return ObjectStore();
     };
 });
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "updateByCursor" ], function(updateAll) {
@@ -2010,8 +2016,8 @@ zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "updateByCursor" ], fun
     };
 
     return function(Index) {
-        Index.prototype.update = update;
-        return Index;
+        Index().prototype.update = update;
+        return Index();
     };
 });
 zone("nigiri.extension").factory("-getKeySet", [ "MyKeySet", "MyRequest" ], function(KeySet, TheRequest) {
@@ -2047,10 +2053,10 @@ zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getKeySet" ], fu
 
     return function(ObjectStore) {
 
-        ObjectStore.prototype.getKeySet = function() {
+        ObjectStore().prototype.getKeySet = function() {
             return getKeySet(this, this.transaction);
         };
-        return ObjectStore;
+        return ObjectStore();
     };
 });
 
@@ -2058,10 +2064,10 @@ zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getKeySet" ], function
 
     return function(Index) {
 
-        Index.prototype.getKeySet = function() {
+        Index().prototype.getKeySet = function() {
             return getKeySet(this, this.transaction);
         };
-        return Index;
+        return Index();
     };
 });
 zone("nigiri.extension").factory("-MyKeyPath", [ "Utils" ], function(Utils) {

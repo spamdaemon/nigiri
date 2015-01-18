@@ -113,8 +113,8 @@ zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "updateByCursor" 
     };
 
     return function(ObjectStore) {
-        ObjectStore.prototype.update = update;
-        return ObjectStore;
+        ObjectStore().prototype.update = update;
+        return ObjectStore();
     };
 });
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "updateByCursor" ], function(updateAll) {
@@ -126,7 +126,7 @@ zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "updateByCursor" ], fun
     };
 
     return function(Index) {
-        Index.prototype.update = update;
-        return Index;
+        Index().prototype.update = update;
+        return Index();
     };
 });

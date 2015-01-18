@@ -47,8 +47,9 @@ zone("nigiri.extension").factory("#createKeyRange", [ "MyKeyRange", "MyKeySet", 
         });
 
 zone("nigiri.extension").interceptor("nigiri.MyKeyRange", [ "nigiri.cmp" ], function(compareKeys) {
-    return function(KeyRange) {
-
+    return function(KeyRangeFN) {
+        var KeyRange = KeyRangeFN();
+        
         Object.defineProperty(KeyRange.prototype, "range", {
             get : function() {
                 return this;

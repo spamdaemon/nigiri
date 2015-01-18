@@ -92,14 +92,14 @@ zone("nigiri.extension").factory("-addPutAll", [ "$console", "MyRequest" ], func
 zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "addPutAll" ], function(addPutAll) {
 
     return function(ObjectStore) {
-        ObjectStore.prototype.addAll = function() {
+        ObjectStore().prototype.addAll = function() {
             return addPutAll(this, "add", arguments);
         };
 
-        ObjectStore.prototype.putAll = function() {
+        ObjectStore().prototype.putAll = function() {
             return addPutAll(this, "put", arguments);
         };
 
-        return ObjectStore;
+        return ObjectStore();
     };
 });

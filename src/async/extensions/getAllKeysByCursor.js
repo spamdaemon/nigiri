@@ -33,20 +33,20 @@ zone("nigiri.extension").factory("-getAllKeysByCursor", [ "MyRequest", "nigiri.c
 zone("nigiri.extension").interceptor("nigiri.MyObjectStore", [ "getAllKeysByCursor" ], function(getAllKeysByCursor) {
 
     return function(ObjectStore) {
-        ObjectStore.prototype.getAllKeys = function() {
+        ObjectStore().prototype.getAllKeys = function() {
             var req = this.openCursor.apply(this, arguments);
             return getAllKeysByCursor(req);
         };
-        return ObjectStore;
+        return ObjectStore();
     };
 });
 
 zone("nigiri.extension").interceptor("nigiri.MyIndex", [ "getAllKeysByCursor" ], function(getAllKeysByCursor) {
     return function(Index) {
-        Index.prototype.getAllKeys = function() {
+        Index().prototype.getAllKeys = function() {
             var req = this.openKeyCursor.apply(this, arguments);
             return getAllKeysByCursor(req);
         };
-        return Index;
+        return Index();
     };
 });
