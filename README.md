@@ -42,7 +42,7 @@ This is the initial version of Nigiri and it is likely to have bugs:
 Unit Testing
 ------------
 
-Unit testing is supported by [Jasmine](http://pivotal.github.io/jasmine/)
+Unit testing is supported by [Jasmine](http://jasmine.github.io/)
 and [Karma](http://karma-runner.github.io/0.10/index.html).
 
 
